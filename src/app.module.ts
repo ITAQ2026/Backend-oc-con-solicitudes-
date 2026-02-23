@@ -10,16 +10,14 @@ import { OrdenesPagoModule } from './ordenes-pago/ordenes-pago.module';
   imports: [
     // Conexión a Base de Datos Local (Postgres en tu PC)
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres', // Cambia esto por tu contraseña de pgAdmin
-      database: 'gestion_db',        // Cambia esto por el nombre de tu BD local
-      autoLoadEntities: true,
-      //synchronize: true,             // Mantiene las tablas sincronizadas en local
-      ssl: false,                    // En localhost no se usa SSL
-    }),
+  type: 'postgres',
+  url: process.env.DATABASE_URL, // 👈 clave
+  autoLoadEntities: true,
+  synchronize: false,
+  ssl: process.env.DATABASE_URL
+    ? { rejectUnauthorized: false }
+    : false,
+}),
 
     // Tus módulos funcionales
     ProveedoresModule,
