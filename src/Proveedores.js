@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import api from './api';
-import { UserPlus, Trash2, ShieldCheck } from 'lucide-react';
+import { UserPlus, Trash2 } from 'lucide-react';
 
 const Proveedores = () => {
   const [proveedores, setProveedores] = useState([]);
   const [formData, setFormData] = useState({
     nombre: '',
-    cuit: '', // Este campo debe coincidir con tu Entity en NestJS
+    cuit: '',
     direccion: '',
     localidad: '',
     provincia: '',
     telefono: '',
-    codigoPostal: ''
+    codigo_postal: '' // Ajustado a snake_case para coincidir con la DB
   });
 
   const cargarProveedores = async () => {
@@ -34,23 +34,29 @@ const Proveedores = () => {
   const guardar = async (e) => {
     e.preventDefault();
     if (!formData.nombre || !formData.cuit) {
-      return alert("El Nombre y el CUIT son obligatorios para la base de datos");
+      return alert("El Nombre y el CUIT son obligatorios");
     }
     
     try {
-      // Enviamos el objeto completo a NestJS
+      // Enviamos el objeto con 'codigo_postal' a NestJS
       await api.post('/proveedores', formData);
       
+      // Limpiamos el formulario con los nombres correctos
       setFormData({
-        nombre: '', cuit: '', direccion: '', localidad: '',
-        provincia: '', telefono: '', codigoPostal: ''
+        nombre: '', 
+        cuit: '', 
+        direccion: '', 
+        localidad: '',
+        provincia: '', 
+        telefono: '', 
+        codigo_postal: '' 
       });
       
       cargarProveedores(); 
       alert("Proveedor guardado con éxito");
     } catch (err) {
       console.error(err);
-      alert("Error al guardar: Verifique que el nombre no esté duplicado.");
+      alert("Error al guardar: Verifique la conexión o si el CUIT ya existe.");
     }
   };
 
@@ -73,46 +79,86 @@ const Proveedores = () => {
       <form onSubmit={guardar} style={styles.form}>
         <div style={{ gridColumn: 'span 1' }}>
           <label style={styles.label}>Razón Social / Nombre *</label>
-          <input name="nombre" placeholder="Ej: Alpha Química" value={formData.nombre} onChange={handleChange} style={styles.input} />
+          <input 
+            name="nombre" 
+            placeholder="Ej: Alpha Química" 
+            value={formData.nombre} 
+            onChange={handleChange} 
+            style={styles.input} 
+          />
         </div>
 
-        {/* CAMPO CUIT DESTACADO */}
         <div style={{ gridColumn: 'span 1' }}>
           <label style={styles.label}>CUIT / CUIL *</label>
-          <input name="cuit" placeholder="20-XXXXXXXX-X" value={formData.cuit} onChange={handleChange} style={{...styles.input, borderColor: '#3b82f6'}} />
+          <input 
+            name="cuit" 
+            placeholder="20-XXXXXXXX-X" 
+            value={formData.cuit} 
+            onChange={handleChange} 
+            style={{...styles.input, borderColor: '#3b82f6'}} 
+          />
         </div>
 
         <div style={{ gridColumn: 'span 1' }}>
           <label style={styles.label}>Teléfono de Contacto</label>
-          <input name="telefono" placeholder="011 ..." value={formData.telefono} onChange={handleChange} style={styles.input} />
+          <input 
+            name="telefono" 
+            placeholder="011 ..." 
+            value={formData.telefono} 
+            onChange={handleChange} 
+            style={styles.input} 
+          />
         </div>
 
         <div style={{ gridColumn: 'span 1' }}>
           <label style={styles.label}>Código Postal</label>
-          <input name="codigoPostal" placeholder="C.P." value={formData.codigoPostal} onChange={handleChange} style={styles.input} />
+          <input 
+            name="codigo_postal" // Cambiado para coincidir con la base de datos
+            placeholder="C.P." 
+            value={formData.codigo_postal} 
+            onChange={handleChange} 
+            style={styles.input} 
+          />
         </div>
 
         <div style={{ gridColumn: 'span 2' }}>
           <label style={styles.label}>Dirección Calle y Altura</label>
-          <input name="direccion" placeholder="Calle Falsa 123" value={formData.direccion} onChange={handleChange} style={styles.input} />
+          <input 
+            name="direccion" 
+            placeholder="Calle Falsa 123" 
+            value={formData.direccion} 
+            onChange={handleChange} 
+            style={styles.input} 
+          />
         </div>
 
         <div style={{ gridColumn: 'span 1' }}>
           <label style={styles.label}>Localidad</label>
-          <input name="localidad" placeholder="Ej: Villa María" value={formData.localidad} onChange={handleChange} style={styles.input} />
+          <input 
+            name="localidad" 
+            placeholder="Ej: Villa María" 
+            value={formData.localidad} 
+            onChange={handleChange} 
+            style={styles.input} 
+          />
         </div>
 
         <div style={{ gridColumn: 'span 1' }}>
           <label style={styles.label}>Provincia</label>
-          <input name="provincia" placeholder="Córdoba" value={formData.provincia} onChange={handleChange} style={styles.input} />
+          <input 
+            name="provincia" 
+            placeholder="Córdoba" 
+            value={formData.provincia} 
+            onChange={handleChange} 
+            style={styles.input} 
+          />
         </div>
         
         <button type="submit" style={styles.btnGuardar}>
-          GUARDAR EN POSTGRESQL
+          GUARDAR EN POSTGRESQL (RENDER)
         </button>
       </form>
 
-      {/* TABLA CON CUIT VISIBLE */}
       <div style={styles.tableContainer}>
         <table style={styles.table}>
           <thead>
@@ -130,7 +176,10 @@ const Proveedores = () => {
                 <td style={styles.td}><span style={styles.badge}>{p.cuit || 'S/D'}</span></td>
                 <td style={styles.td}>
                   {p.direccion} <br />
-                  <small style={{ color: '#64748b' }}>{p.localidad}, {p.provincia}</small>
+                  <small style={{ color: '#64748b' }}>
+                    {p.localidad}{p.provincia ? `, ${p.provincia}` : ''} 
+                    {p.codigo_postal ? ` (${p.codigo_postal})` : ''}
+                  </small>
                 </td>
                 <td style={styles.td}>
                   <button onClick={() => eliminar(p.id)} style={styles.btnEliminar}>

@@ -23,7 +23,7 @@ export class Proveedor {
   @Column({ nullable: true })
   telefono: string;
 
-  @Column({ nullable: true, name: 'codigo_postal' })
-  codigoPostal: string;
+  @Column({ name: 'codigo_postal', nullable: true }) // 👈 Esto mapea el nombre de la DB
+  codigo_postal: string;
 
 }
