@@ -5,24 +5,26 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProveedoresModule } from './proveedores/proveedores.module';
 import { OrdenesCompraModule } from './ordenes-compra/ordenes-compra.module';
 import { OrdenesPagoModule } from './ordenes-pago/ordenes-pago.module';
+// NUEVO: Importamos el módulo de Compras Especiales
+import { ComprasEspecialesModule } from './compras-especiales/compras-especiales.module';
 
 @Module({
   imports: [
-    // Conexión a Base de Datos Local (Postgres en tu PC)
+    // Conexión a Base de Datos
     TypeOrmModule.forRoot({
-  type: 'postgres',
-  // Si hay DATABASE_URL usa la URL, si no, usa localhost (para tu PC)
-  url: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/gestion_db',
-  autoLoadEntities: true,
-  synchronize: true,
-  // Solo activa SSL si estamos en Render (donde existe la URL)
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
-}),
+      type: 'postgres',
+      url: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/gestion_db',
+      autoLoadEntities: true,
+      synchronize: true, // Esto creará la tabla 'ordenes_especiales' automáticamente al iniciar
+      ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
+    }),
 
     // Tus módulos funcionales
     ProveedoresModule,
     OrdenesCompraModule,
     OrdenesPagoModule,
+    // NUEVO: Registramos el módulo aquí
+    ComprasEspecialesModule,
   ],
 })
 export class AppModule {}
