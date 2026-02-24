@@ -1,14 +1,19 @@
-// main.ts (en la carpeta backend)
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  // ESTA LÍNEA ES LA QUE SOLUCIONA EL ERROR EN ROJO
-  app.enableCors(); 
 
-  const port = process.env.PORT || 10000; // Render usa el 10000 por defecto
-  await app.listen(port);
+  // Habilitamos CORS para que Vercel pueda conectarse
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
+  // Render asigna el puerto automáticamente
+  const port = process.env.PORT || 10000;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Servidor corriendo en el puerto: ${port}`);
 }
 bootstrap();

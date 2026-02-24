@@ -11,12 +11,12 @@ import { OrdenesPagoModule } from './ordenes-pago/ordenes-pago.module';
     // Conexión a Base de Datos Local (Postgres en tu PC)
     TypeOrmModule.forRoot({
   type: 'postgres',
-  url: process.env.DATABASE_URL, // 👈 clave
+  // Si hay DATABASE_URL usa la URL, si no, usa localhost (para tu PC)
+  url: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/gestion_db',
   autoLoadEntities: true,
   synchronize: true,
-  ssl: process.env.DATABASE_URL
-    ? { rejectUnauthorized: false }
-    : false,
+  // Solo activa SSL si estamos en Render (donde existe la URL)
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
 }),
 
     // Tus módulos funcionales
