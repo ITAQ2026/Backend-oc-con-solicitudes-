@@ -1,3 +1,4 @@
+// compras-especiales/entities/compra-especial.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('ordenes_especiales')
@@ -5,7 +6,7 @@ export class CompraEspecial {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ name: 'id_orden', unique: true }) // Especificamos el nombre real de la tabla
   id_orden: string;
 
   @Column({ nullable: true })
@@ -20,30 +21,24 @@ export class CompraEspecial {
   @Column({ nullable: true })
   cotizacion: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'forma_pago', type: 'text', nullable: true })
   forma_pago: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'metodos_pago', type: 'text', nullable: true })
   metodos_pago: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'lugar_entrega', type: 'text', nullable: true })
   lugar_entrega: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'plazo_entrega', type: 'text', nullable: true })
   plazo_entrega: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'datos_facturacion', type: 'text', nullable: true })
   datos_facturacion: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  items: any[];
+  items: any;
 
-  @Column({ default: 'LEANDRO FERNÁNDEZ' })
-  solicito: string;
-
-  @Column({ default: 'LUCRECIA CAPÓ LLORENTE' })
-  autorizo: string;
-
-  @CreateDateColumn()
+  @Column({ type: 'date', default: () => 'CURRENT_DATE' })
   fecha: Date;
 }
