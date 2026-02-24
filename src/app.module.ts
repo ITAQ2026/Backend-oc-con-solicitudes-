@@ -13,7 +13,7 @@ import { OrdenesPagoModule } from './ordenes-pago/ordenes-pago.module';
   type: 'postgres',
   url: process.env.DATABASE_URL, // 👈 clave
   autoLoadEntities: true,
-  synchronize: false,
+  synchronize: true,
   ssl: process.env.DATABASE_URL
     ? { rejectUnauthorized: false }
     : false,
