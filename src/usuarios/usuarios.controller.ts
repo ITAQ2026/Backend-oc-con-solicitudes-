@@ -5,7 +5,6 @@ import { UsuariosService } from './usuarios.service';
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
-  // 1. LOGIN: El corazón de tu problema actual
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() body: any) {
@@ -15,23 +14,33 @@ export class UsuariosController {
       throw new UnauthorizedException('Debe proporcionar email y contraseña');
     }
 
-    // Llamamos al service que ya tiene los console.log de depuración
+    // --- BLOQUE DE REPARACIÓN TEMPORAL ---
+    // Si intentas entrar con este email, el sistema borrará al usuario viejo
+    // y creará uno nuevo con el hash perfecto generado por NestJS.
+    if (email === 'admin@sistema.com') {
+        console.log('[DEBUG] Reparando usuario administrador...');
+        await this.usuariosService.crear({
+            nombre: 'Administrador',
+            email: 'admin@sistema.com',
+            password: 'admin123', // El service lo hasheará automáticamente
+            rol: 'admin'
+        });
+    }
+    // -------------------------------------
+
     return this.usuariosService.login(email, password);
   }
 
-  // 2. CREAR: Por si necesitas registrar usuarios desde la API
   @Post('registro')
   async registrar(@Body() datos: any) {
     return this.usuariosService.crear(datos);
   }
 
-  // 3. LISTAR: Para ver todos los usuarios (útil para el admin)
   @Get()
   async obtenerTodos() {
     return this.usuariosService.obtenerTodos();
   }
 
-  // 4. BUSCAR POR ID
   @Get(':id')
   async obtenerUno(@Param('id', ParseIntPipe) id: number) {
     return this.usuariosService.buscarPorId(id);
