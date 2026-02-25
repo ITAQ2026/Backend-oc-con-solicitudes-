@@ -1,5 +1,7 @@
 // compras-especiales/entities/compra-especial.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Solicitud } from '../../solicitudes/entities/solicitud.entity';
+import { OneToOne, JoinColumn } from 'typeorm';
 
 @Entity('ordenes_especiales')
 export class CompraEspecial {
@@ -41,4 +43,11 @@ export class CompraEspecial {
 
   @Column({ type: 'date', default: () => 'CURRENT_DATE' })
   fecha: Date;
+
+  @Column({ nullable: true })
+  solicitudId: number; 
+
+  @OneToOne(() => Solicitud)
+  @JoinColumn()
+  solicitud: Solicitud;
 }

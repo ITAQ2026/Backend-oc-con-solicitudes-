@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-// Tus módulos funcionales
+// Tus módulos funcionales existentes
 import { ProveedoresModule } from './proveedores/proveedores.module';
 import { OrdenesCompraModule } from './ordenes-compra/ordenes-compra.module';
 import { OrdenesPagoModule } from './ordenes-pago/ordenes-pago.module';
-// NUEVO: Importamos el módulo de Compras Especiales
 import { ComprasEspecialesModule } from './compras-especiales/compras-especiales.module';
+
+// NUEVOS MÓDULOS: Agrégalos aquí
+import { UsuariosModule } from './usuarios/usuarios.module';
+import { SolicitudesModule } from './solicitudes/solicitudes.module';
 
 @Module({
   imports: [
@@ -15,16 +18,19 @@ import { ComprasEspecialesModule } from './compras-especiales/compras-especiales
       type: 'postgres',
       url: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/gestion_db',
       autoLoadEntities: true,
-      synchronize: true, // Esto creará la tabla 'ordenes_especiales' automáticamente al iniciar
+      synchronize: true, // Esto creará 'usuarios' y 'solicitudes_compra' automáticamente
       ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
     }),
 
-    // Tus módulos funcionales
+    // Registro de módulos funcionales
     ProveedoresModule,
     OrdenesCompraModule,
     OrdenesPagoModule,
-    // NUEVO: Registramos el módulo aquí
     ComprasEspecialesModule,
+    
+    // Agregamos los nuevos al final
+    UsuariosModule,
+    SolicitudesModule,
   ],
 })
 export class AppModule {}
