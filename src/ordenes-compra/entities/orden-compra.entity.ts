@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { OrdenCompraItem } from './orden-compra-item.entity';
+import { Solicitud } from '../../solicitudes/entities/solicitud.entity';
 
 @Entity('ordenes_compra')
 export class OrdenCompra {
@@ -7,26 +8,20 @@ export class OrdenCompra {
   id: number;
 
   @Column()
-  numeroOrden: string;
+  proveedor: string;
 
-  @Column()
-  proveedorNombre: string;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  fecha: Date;
 
-  @Column()
-  condicionPago: string; // cuenta corriente, efectivo, etc.
-
-  @Column({ type: 'text', nullable: true })
-  observaciones: string;
-
-  @Column()
-  autoriza: string; // Obligatorio
-
-  @Column()
-  retira: string;   // Obligatorio
-
+  // Relación con sus propios items
   @OneToMany(() => OrdenCompraItem, (item) => item.orden, { cascade: true })
   items: OrdenCompraItem[];
 
-  @CreateDateColumn()
-  fecha: Date;
+  // RELACIÓN CON SOLICITUD (Para elegirla desde el formulario)
+  @ManyToOne(() => Solicitud, { nullable: true })
+  @JoinColumn({ name: 'solicitudId' })
+  solicitud: Solicitud;
+
+  @Column({ nullable: true })
+  solicitudId: number; 
 }

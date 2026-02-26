@@ -33,7 +33,7 @@ import { SolicitudesModule } from './solicitudes/solicitudes.module';
           database: dbUrl ? undefined : configService.get<string>('DB_DATABASE'),
           
           autoLoadEntities: true,
-          synchronize: true, 
+          synchronize: false, 
           
           // IMPORTANTE: Render DB interna NO suele necesitar SSL, 
           // pero si usas la URL externa o Neon, se mantiene esta lógica.
