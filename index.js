@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configuración de la conexión a PostgreSQL (usa tu variable de entorno de Render)
+// Configuración de la conexión a PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -17,25 +17,38 @@ const pool = new Pool({
   }
 });
 
-// --- RUTAS PARA ÓRDENES ESPECIALES ---
-
-// 1. Obtener todas las órdenes (Historial)
-app.get('/api/ordenes-especiales', async (req, res) => {
+// --- 1. RUTA DE SOLICITUDES (Vital para vincular en el Front) ---
+app.get('/api/solicitudes', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM ordenes_especiales ORDER BY fecha DESC, id DESC');
+    // Traemos todas las solicitudes. El frontend filtrará las "Aceptada"
+    const result = await pool.query('SELECT * FROM solicitudes ORDER BY id DESC');
     res.json(result.rows);
   } catch (err) {
-    console.error("Error al obtener órdenes:", err);
-    res.status(500).json({ error: "Error en el servidor" });
+    console.error("Error al obtener solicitudes:", err);
+    res.status(500).json({ error: "Error al traer solicitudes de la base de datos" });
   }
 });
 
-// 2. Guardar una nueva orden
+// --- 2. RUTAS PARA ÓRDENES ESPECIALES ---
+
+// Obtener historial de órdenes especiales
+app.get('/api/ordenes-especiales', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM ordenes_especiales ORDER BY id_orden DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error al obtener órdenes:", err);
+    res.status(500).json({ error: "Error en el servidor al traer historial" });
+  }
+});
+
+// Guardar una nueva orden especial
 app.post('/api/ordenes-especiales', async (req, res) => {
+  // Recibimos los nombres de campos exactamente como los envía el Frontend
   const { 
-    idOrden, proveedor, referencia, contacto, cotizacion, 
-    formaPago, metodosPago, lugarEntrega, plazoEntrega, 
-    datosFacturacion, items, solicito, autorizo 
+    id_orden, proveedor, referencia, contacto, cotizacion, 
+    forma_pago, metodos_pago, lugar_entrega, plazo_entrega, 
+    datos_facturacion, detalles_orden, solicito, autorizo 
   } = req.body;
 
   try {
@@ -47,31 +60,44 @@ app.post('/api/ordenes-especiales', async (req, res) => {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *`;
     
+    // El campo 'items' en la base de datos recibirá el contenido de 'detalles_orden'
     const values = [
-      idOrden, proveedor, referencia, contacto, cotizacion, 
-      formaPago, metodosPago, lugarEntrega, plazoEntrega, 
-      datosFacturacion, JSON.stringify(items), solicito, autorizo
+      id_orden, proveedor, referencia, contacto, cotizacion, 
+      forma_pago, metodos_pago, lugar_entrega, plazo_entrega, 
+      datos_facturacion, detalles_orden, solicito, autorizo
     ];
 
     const result = await pool.query(query, values);
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error("Error al guardar orden:", err);
+    console.error("Error al guardar orden especial:", err);
     res.status(500).json({ error: "Error al guardar en la base de datos" });
   }
 });
 
-// 3. Ruta para proveedores (la que ya usas en el front)
+// --- 3. RUTA PARA PROVEEDORES ---
 app.get('/api/proveedores', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM proveedores ORDER BY nombre ASC');
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: "Error al traer proveedores" });
-    }
+  try {
+    const result = await pool.query('SELECT * FROM proveedores ORDER BY nombre ASC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error en proveedores:", err);
+    res.status(500).json({ error: "Error al traer proveedores" });
+  }
 });
 
+// --- 4. RUTA PARA ÓRDENES DE COMPRA (Básico) ---
+app.get('/api/ordenes-compra', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM ordenes_compra ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Error al traer órdenes de compra" });
+  }
+});
+
+// Levantar Servidor
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+  console.log(`🚀 Servidor Alpha Química corriendo en puerto ${PORT}`);
 });
