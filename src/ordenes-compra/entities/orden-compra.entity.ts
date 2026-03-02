@@ -14,7 +14,7 @@ export class OrdenCompra {
   fecha: Date;
 
   @Column({ nullable: true })
-  solicitudId: number;
+  solicitudId?: number;
 
   @Column({ nullable: true })
   autoriza: string;
