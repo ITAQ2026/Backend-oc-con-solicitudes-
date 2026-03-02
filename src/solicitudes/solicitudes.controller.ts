@@ -11,18 +11,18 @@ export class SolicitudesController {
     return this.service.crear(datos, usuarioIdProvisorio);
   }
 
-  @Get()
-  async obtenerTodas(@Query() query: any) {
-    const rol = query.rol || 'user';
-    const usuario_id = parseInt(query.usuario_id) || 1;
-
-    const usuarioSimulado = {
-      rol: rol,
-      id: usuario_id
-    };
-    
-    return this.service.obtenerTodas(usuarioSimulado);
-  }
+  // solicitudes.controller.ts
+@Get()
+async obtenerTodas(@Query() query: any) {
+  const usuarioSimulado = {
+    // Tomamos el rol de la query (?rol=admin)
+    rol: query.rol || 'user', 
+    // Tomamos el id de la query o usamos 0 si es admin para que no filtre
+    id: parseInt(query.usuario_id) || 0 
+  };
+  
+  return this.service.obtenerTodas(usuarioSimulado);
+}
 
   @Patch(':id/estado')
   async actualizarEstado(
