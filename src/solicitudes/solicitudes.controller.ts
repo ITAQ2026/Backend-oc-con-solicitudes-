@@ -1,20 +1,18 @@
 import { Controller, Get, Post, Body, Patch, Param, Query } from '@nestjs/common';
 import { SolicitudesService } from './solicitudes.service';
 
-@Controller('solicitudes')
+@Controller('api/solicitudes') // <--- AGREGÁ 'api/' AQUÍ
 export class SolicitudesController {
   constructor(private readonly service: SolicitudesService) {}
 
   @Post()
   async crear(@Body() datos: any) {
-    // Temporalmente usamos un ID de usuario fijo hasta tener el Login listo
     const usuarioIdProvisorio = datos.usuario_id || 1; 
     return this.service.crear(datos, usuarioIdProvisorio);
   }
 
   @Get()
   async obtenerTodas(@Query() query: any) {
-    // Extraemos los datos del objeto query de forma segura
     const rol = query.rol || 'user';
     const usuario_id = parseInt(query.usuario_id) || 1;
 
@@ -25,6 +23,7 @@ export class SolicitudesController {
     
     return this.service.obtenerTodas(usuarioSimulado);
   }
+
   @Patch(':id/estado')
   async actualizarEstado(
     @Param('id') id: string, 
