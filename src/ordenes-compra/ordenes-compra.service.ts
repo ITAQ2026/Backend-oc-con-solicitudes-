@@ -11,20 +11,37 @@ export class OrdenesCompraService {
   ) {}
 
   async create(data: any) {
-    // Lógica de Macro: Generar número correlativo
-    const ultima = await this.repo.find({ order: { id: 'DESC' }, take: 1 });
-    const nuevoId = ultima.length > 0 ? ultima[0].id + 1 : 1;
-    data.numeroOrden = `OC-${nuevoId.toString().padStart(4, '0')}`;
-    
-    const nueva = this.repo.create(data);
-    return this.repo.save(nueva);
+    // 1. Manejo de los ítems: Si vienen como String (JSON) desde el front, los parseamos
+    let itemsProcesados = [];
+    if (data.items) {
+      itemsProcesados = typeof data.items === 'string' ? JSON.parse(data.items) : data.items;
+    }
+
+    // 2. Quitamos 'items' del objeto data principal para no confundir al repo.create
+    const { items, ...datosOrden } = data;
+
+    // 3. Crear la instancia de la Orden con sus ítems relacionados
+    // Al tener 'cascade: true' en la entidad OrdenCompra, esto guardará los ítems automáticamente
+    const nuevaOrden = this.repo.create({
+      ...datosOrden,
+      items: itemsProcesados
+    });
+
+    return await this.repo.save(nuevaOrden);
   }
 
-  // Cambia tu findAll por este:
   async findAll() {
+    // Esto ya lo tenías bien, es fundamental para que el historial vea los ítems
     return await this.repo.find({
-      relations: ['items'],
+      relations: ['items', 'solicitud'],
       order: { id: 'DESC' }  
+    });
+  }
+
+  async findOne(id: number) {
+    return await this.repo.findOne({
+      where: { id },
+      relations: ['items', 'solicitud']
     });
   }
 }
