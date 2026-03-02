@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { OrdenCompra } from './orden-compra.entity';
 
 @Entity('ordenes_compra_items')
@@ -9,13 +9,12 @@ export class OrdenCompraItem {
   @Column()
   producto: string;
 
-  @Column('int')
+  @Column({ type: 'float' })
   cantidad: number;
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column({ type: 'float', default: 0 })
   precio: number;
 
-  // Relación con la cabecera de la orden
   @ManyToOne(() => OrdenCompra, (orden) => orden.items, { onDelete: 'CASCADE' })
-  orden: OrdenCompra;
+  orden: OrdenCompra;;
 }

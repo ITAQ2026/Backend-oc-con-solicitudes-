@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrdenCompra } from './entities/orden-compra.entity';
@@ -10,38 +10,47 @@ export class OrdenesCompraService {
     private repo: Repository<OrdenCompra>,
   ) {}
 
-  async create(data: any) {
-    // 1. Manejo de los ítems: Si vienen como String (JSON) desde el front, los parseamos
+// backend > src > ordenes-compra > ordenes-compra.service.ts
+
+async create(data: any) {
+  try {
     let itemsProcesados = [];
     if (data.items) {
       itemsProcesados = typeof data.items === 'string' ? JSON.parse(data.items) : data.items;
     }
 
-    // 2. Quitamos 'items' del objeto data principal para no confundir al repo.create
-    const { items, ...datosOrden } = data;
-
-    // 3. Crear la instancia de la Orden con sus ítems relacionados
-    // Al tener 'cascade: true' en la entidad OrdenCompra, esto guardará los ítems automáticamente
+    // 2. Mapear los datos para que coincidan con la Entity
     const nuevaOrden = this.repo.create({
-      ...datosOrden,
-      items: itemsProcesados
+      proveedor: data.proveedor || data.proveedorNombre,
+      fecha: new Date(),
+      solicitudId: data.solicitudId ? Number(data.solicitudId) : null,
+      
+      // AGREGAR ESTOS CAMPOS AQUÍ:
+      autoriza: data.autoriza || 'LUCRECIA CAPÓ LLORENTE',
+      retira: data.retira || '',
+      condicionPago: data.condicionPago || '',
+      observaciones: data.observaciones || '',
+
+      // Mapeo de items
+      items: itemsProcesados.map(i => ({
+        producto: i.producto,
+        cantidad: Number(i.cantidad),
+        precio: Number(i.precio || 0)
+      }))
     });
 
     return await this.repo.save(nuevaOrden);
+  } catch (error) {
+    console.error("Error al crear orden:", error);
+    throw new Error("Error interno del servidor");
   }
+}
 
   async findAll() {
-    // Esto ya lo tenías bien, es fundamental para que el historial vea los ítems
+    // IMPORTANTE: relations: ['items'] es lo que hace que aparezcan en el historial
     return await this.repo.find({
       relations: ['items', 'solicitud'],
-      order: { id: 'DESC' }  
-    });
-  }
-
-  async findOne(id: number) {
-    return await this.repo.findOne({
-      where: { id },
-      relations: ['items', 'solicitud']
+      order: { id: 'DESC' }
     });
   }
 }
