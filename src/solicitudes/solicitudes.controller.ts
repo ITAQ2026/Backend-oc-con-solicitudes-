@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Query } from '@nestjs/common';
 import { SolicitudesService } from './solicitudes.service';
 
-@Controller('api/solicitudes') // <--- AGREGÁ 'api/' AQUÍ
+@Controller('solicitudes') // <--- AGREGÁ 'api/' AQUÍ
 export class SolicitudesController {
   constructor(private readonly service: SolicitudesService) {}
 

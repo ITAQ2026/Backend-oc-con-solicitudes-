@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Param, UnauthorizedException, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 
-@Controller('api/usuarios') // ✅ AÑADIDO 'api/' para coincidir con el Frontend
+@Controller('usuarios') // ✅ AÑADIDO 'api/' para coincidir con el Frontend
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
