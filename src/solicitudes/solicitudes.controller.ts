@@ -13,15 +13,18 @@ export class SolicitudesController {
   }
 
   @Get()
-  async obtenerTodas(@Query('rol') rol: string, @Query('usuario_id') usuario_id: string) {
-    // Simulamos el objeto usuario que vendría del Token
+  async obtenerTodas(@Query() query: any) {
+    // Extraemos los datos del objeto query de forma segura
+    const rol = query.rol || 'user';
+    const usuario_id = parseInt(query.usuario_id) || 1;
+
     const usuarioSimulado = {
-      rol: rol || 'user',
-      id: parseInt(usuario_id) || 1
+      rol: rol,
+      id: usuario_id
     };
+    
     return this.service.obtenerTodas(usuarioSimulado);
   }
-
   @Patch(':id/estado')
   async actualizarEstado(
     @Param('id') id: string, 
