@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Param, UnauthorizedException, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 
-@Controller('usuarios')
+@Controller('api/usuarios') // ✅ AÑADIDO 'api/' para coincidir con el Frontend
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
@@ -19,7 +19,6 @@ export class UsuariosController {
 
   @Post('registro')
   async registrar(@Body() datos: any) {
-    // Esto te permitirá crear el admin desde el frontend o Postman de forma segura
     return this.usuariosService.crear(datos);
   }
 
