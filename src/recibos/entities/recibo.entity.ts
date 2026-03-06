@@ -6,10 +6,10 @@ export class Recibo {
   id: number;
 
   @Column()
-  emisor: string; // Quien entrega el dinero/bien (ej: Alpha Química)
+  emisor: string;
 
   @Column()
-  receptor: string; // Quien recibe (ej: el proveedor o empleado)
+  receptor: string;
 
   @Column({ type: 'text' })
   concepto: string;
@@ -18,8 +18,8 @@ export class Recibo {
   monto: number;
 
   @Column({ default: 'Efectivo' })
-  metodo_pago: string;
+  condicion_pago: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn()
   fecha: Date;
 }

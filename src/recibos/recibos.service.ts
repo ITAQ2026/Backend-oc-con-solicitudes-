@@ -7,15 +7,15 @@ import { Recibo } from './entities/recibo.entity';
 export class RecibosService {
   constructor(
     @InjectRepository(Recibo)
-    private readonly reciboRepository: Repository<Recibo>,
+    private readonly repository: Repository<Recibo>,
   ) {}
 
-  findAll(): Promise<Recibo[]> {
-    return this.reciboRepository.find({ order: { fecha: 'DESC' } });
+  findAll() {
+    return this.repository.find({ order: { id: 'DESC' } });
   }
 
-  create(data: Partial<Recibo>): Promise<Recibo> {
-    const nuevo = this.reciboRepository.create(data);
-    return this.reciboRepository.save(nuevo);
+  async create(data: Partial<Recibo>) {
+    const nuevo = this.repository.create(data);
+    return this.repository.save(nuevo);
   }
 }
