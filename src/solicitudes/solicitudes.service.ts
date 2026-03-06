@@ -1,5 +1,4 @@
-// src/solicitudes/solicitudes.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Solicitud } from './entities/solicitud.entity';
@@ -12,29 +11,51 @@ export class SolicitudesService {
   ) {}
 
   async crear(datos: any, usuarioId: number) {
-    const nueva = this.repo.create({
-      ...datos,
-      usuario_id: usuarioId
-    });
-    return await this.repo.save(nueva);
+    try {
+      // Si los items vienen como objeto, los convertimos a string para la DB
+      const itemsString = typeof datos.items === 'object' 
+        ? JSON.stringify(datos.items) 
+        : datos.items;
+
+      const nueva = this.repo.create({
+        area: datos.area,
+        solicitante: datos.solicitante,
+        items: itemsString, // Guardamos la estructura dinámica
+        justificacion: datos.justificacion,
+        urgencia: datos.urgencia || 'Conveniente',
+        link_referencia: datos.link_referencia,
+        estado: 'En Revisión', // Estado inicial solicitado
+        usuario_id: usuarioId,
+        // fecha_creacion se genera sola por el decorador @CreateDateColumn
+      });
+
+      return await this.repo.save(nueva);
+    } catch (error) {
+      throw new BadRequestException("Error al crear la solicitud: " + error.message);
+    }
   }
 
- async obtenerTodas(usuario: { id: number, rol: string }) {
-  if (usuario.rol === 'admin') {
-    // El admin ve todas las solicitudes y quién las hizo
-    return await this.repo.find({ 
-      relations: ['usuario'], 
-      order: { fecha_creacion: 'DESC' } 
-    });
+  async obtenerTodas(usuario: { id: number; rol: string }) {
+    const opciones: any = {
+      order: { fecha_creacion: 'DESC' },
+    };
+
+    // Si no es admin, filtramos por su propio ID
+    if (usuario.rol !== 'admin') {
+      opciones.where = { usuario_id: usuario.id };
+    } else {
+      opciones.relations = ['usuario'];
+    }
+
+    return await this.repo.find(opciones);
   }
-  // El usuario común solo ve las suyas
-  return await this.repo.find({ 
-    where: { usuario_id: usuario.id }, 
-    order: { fecha_creacion: 'DESC' } 
-  });
-}
 
   async actualizarEstado(id: number, estado: string) {
+    // Validamos que el estado sea uno de los permitidos
+    const estadosValidos = ['En Revisión', 'Aprobado', 'Rechazado'];
+    if (!estadosValidos.includes(estado)) {
+      throw new BadRequestException("Estado no válido");
+    }
     return await this.repo.update(id, { estado });
   }
 }

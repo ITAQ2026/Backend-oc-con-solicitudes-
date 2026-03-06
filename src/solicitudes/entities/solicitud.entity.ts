@@ -1,4 +1,3 @@
-// src/solicitudes/entities/solicitud.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Usuario } from '../../usuarios/entities/usuario.entity';
 
@@ -13,22 +12,19 @@ export class Solicitud {
   @Column()
   solicitante: string;
 
-  @Column('text')
-  descripcion: string;
+  // NUEVO: Aquí guardaremos el array de objetos [{producto, cantidad, precio}]
+  @Column({ type: 'text', nullable: true })
+  items: string;
 
-  @Column()
-  cantidad: number;
-
-  @Column('text')
+  @Column('text', { nullable: true })
   justificacion: string;
 
-  @Column({ type: 'date' })
-  fecha_limite: Date;
-
+  // Eliminamos fecha_limite manual y dejamos que se maneje por creación o urgencia
   @Column({ default: 'Conveniente' })
   urgencia: string;
 
-  @Column({ default: 'Pendiente' })
+  // CAMBIO: El estado por defecto ahora es 'En Revisión'
+  @Column({ default: 'En Revisión' })
   estado: string;
 
   @Column({ nullable: true })
@@ -42,6 +38,7 @@ export class Solicitud {
   @Column({ nullable: true })
   usuario_id: number;
 
+  // Se genera sola, no necesitas pedirla en el formulario
   @CreateDateColumn()
   fecha_creacion: Date;
 }
