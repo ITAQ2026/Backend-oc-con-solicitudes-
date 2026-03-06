@@ -9,6 +9,13 @@ import { ComprasEspecialesModule } from './compras-especiales/compras-especiales
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
 
+// NUEVOS MÓDULOS DE LOGÍSTICA
+import { VehiculosModule } from './vehiculos/vehiculos.module';
+import { OrdenesTrabajoModule } from './ordenes-trabajo/ordenes-trabajo.module';
+
+// NUEVO MÓDULO DE ADMINISTRACIÓN
+import { RecibosModule } from './recibos/recibos.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ 
@@ -32,11 +39,9 @@ import { SolicitudesModule } from './solicitudes/solicitudes.module';
           password: dbUrl ? undefined : configService.get<string>('DB_PASSWORD'),
           database: dbUrl ? undefined : configService.get<string>('DB_DATABASE'),
           
-          autoLoadEntities: true,
-          synchronize: true, 
+          autoLoadEntities: true, // Esto cargará Vehiculo, OrdenTrabajo y Recibo automáticamente
+          synchronize: true, // Crea las tablas en la DB si no existen
           
-          // IMPORTANTE: Render DB interna NO suele necesitar SSL, 
-          // pero si usas la URL externa o Neon, se mantiene esta lógica.
           ssl: dbUrl && dbUrl.includes('render.com') 
                ? { rejectUnauthorized: false } 
                : false,
@@ -50,6 +55,11 @@ import { SolicitudesModule } from './solicitudes/solicitudes.module';
     ComprasEspecialesModule,
     UsuariosModule,
     SolicitudesModule,
+    
+    // REGISTRO DE NUEVOS MÓDULOS
+    VehiculosModule,
+    OrdenesTrabajoModule,
+    RecibosModule, // <--- Módulo de Recibos agregado
   ],
 })
 export class AppModule {}
