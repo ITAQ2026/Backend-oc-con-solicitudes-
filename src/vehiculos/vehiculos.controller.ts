@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Delete, Param, ParseIntPipe } from '@nestj
 import { VehiculosService } from './vehiculos.service';
 import { Vehiculo } from './entities/vehiculos.entity';
 
-@Controller('api/vehiculos')
+@Controller('vehiculos')
 export class VehiculosController {
   constructor(private readonly vehiculosService: VehiculosService) {}
 

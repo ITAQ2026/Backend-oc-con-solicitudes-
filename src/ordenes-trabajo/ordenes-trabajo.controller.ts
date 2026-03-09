@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { OrdenesTrabajoService } from './ordenes-trabajo.service';
 
-@Controller('api/ordenes-trabajo')
+@Controller('ordenes-trabajo')
 export class OrdenesTrabajoController {
   constructor(private readonly otService: OrdenesTrabajoService) {}
 
