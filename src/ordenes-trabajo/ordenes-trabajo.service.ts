@@ -1,32 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { OrdenesTrabajoRepository } from './ordenes-trabajo.repository';
 import { OrdenTrabajo } from './entities/orden-trabajo.entity';
+import { CreateOrdenTrabajoDto } from './dto/create-orden-trabajo.dto'; // Importa el DTO
 
 @Injectable()
 export class OrdenesTrabajoService {
   constructor(
-    @InjectRepository(OrdenTrabajo)
-    private readonly otRepository: Repository<OrdenTrabajo>,
+    private readonly otRepository: OrdenesTrabajoRepository,
   ) {}
 
   async findAll(): Promise<OrdenTrabajo[]> {
-    return this.otRepository.find({
-      relations: ['vehiculo'], // Cruza los datos para traer la patente
-      order: { id: 'DESC' },
-    });
+    return this.otRepository.getAll();
   }
 
-  async create(data: any): Promise<OrdenTrabajo> {
-    const nuevaOT = this.otRepository.create({
-      descripcion_falla: data.falla,
-      tareas_realizadas: data.tareas,
-      kilometraje: data.kilometraje,
-      responsable: data.responsable,
-      repuestos_utilizados: data.repuestos, // Se guarda como JSONB automáticamente
-      vehiculo: { id: data.vehiculoId }    // Vinculamos al ID del vehículo
-    });
+  async create(dto: CreateOrdenTrabajoDto): Promise<OrdenTrabajo> {
+    // El mapeo ahora es mucho más seguro
+    const payload = {
+      descripcion_falla: dto.falla,
+      tareas_realizadas: dto.tareas,
+      kilometraje: dto.kilometraje,
+      responsable: dto.responsable,
+      repuestos_utilizados: dto.repuestos,
+      vehiculo: { id: dto.vehiculoId }
+    };
     
-    return this.otRepository.save(nuevaOT);
+    return this.otRepository.saveOne(payload);
   }
 }
