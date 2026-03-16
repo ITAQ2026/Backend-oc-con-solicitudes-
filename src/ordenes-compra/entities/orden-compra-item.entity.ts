@@ -12,8 +12,10 @@ export class OrdenCompraItem {
   @Column({ type: 'float' })
   cantidad: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true }) 
+  // Corregido: Agregamos el nombre de la propiedad 'precio'
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  precio: number; 
 
   @ManyToOne(() => OrdenCompra, (orden) => orden.items, { onDelete: 'CASCADE' })
-  orden: OrdenCompra;;
+  orden: OrdenCompra; // Corregido: Quitamos el doble punto y coma
 }
