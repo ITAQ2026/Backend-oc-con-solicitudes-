@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProveedoresModule } from './proveedores/proveedores.module';
 import { OrdenesCompraModule } from './ordenes-compra/ordenes-compra.module';
 import { OrdenesPagoModule } from './ordenes-pago/ordenes-pago.module';
-import { ComprasEspecialesModule } from './compras-especiales/compras-especiales.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
 
@@ -52,7 +51,6 @@ import { RecibosModule } from './recibos/recibos.module';
     ProveedoresModule,
     OrdenesCompraModule,
     OrdenesPagoModule,
-    ComprasEspecialesModule,
     UsuariosModule,
     SolicitudesModule,
     
