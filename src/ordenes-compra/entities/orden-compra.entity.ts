@@ -25,6 +25,21 @@ export class OrdenCompra {
   @Column({ nullable: true })
   condicionPago: string;
 
+  @Column({ nullable: true })
+  plazoPago: string;
+
+  @Column({ nullable: true })
+  formaPago: string;
+
+  @Column({ nullable: true })
+  direccionDescarga: string;
+
+  @Column({ nullable: true })
+  tiempoEstimado: string;
+
+  @Column({ nullable: true, type: 'text' })
+  especificaciones: string;
+
   // Relación con los items (Esto quita el error en el create)
   @OneToMany(() => OrdenCompraItem, (item) => item.orden, { cascade: true })
   items: OrdenCompraItem[];
