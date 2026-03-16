@@ -12,8 +12,7 @@ export class OrdenCompraItem {
   @Column({ type: 'float' })
   cantidad: number;
 
-  @Column({ type: 'float', default: 0 })
-  precio: number;
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true }) 
 
   @ManyToOne(() => OrdenCompra, (orden) => orden.items, { onDelete: 'CASCADE' })
   orden: OrdenCompra;;

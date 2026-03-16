@@ -2,14 +2,14 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { OrdenCompra } from './entities/orden-compra.entity';
-import { Solicitud } from '../solicitudes/entities/solicitud.entity'; // Asegura la ruta
+import { Solicitud } from '../solicitudes/entities/solicitud.entity';
 
 @Injectable()
 export class OrdenesCompraService {
   constructor(
     @InjectRepository(OrdenCompra)
     private repo: Repository<OrdenCompra>,
-    private dataSource: DataSource, // Inyectamos DataSource para transacciones
+    private dataSource: DataSource,
   ) {}
 
   async create(data: any) {
@@ -18,10 +18,8 @@ export class OrdenesCompraService {
     await queryRunner.startTransaction();
 
     try {
-      // 1. Procesar items
       let itemsProcesados = typeof data.items === 'string' ? JSON.parse(data.items) : data.items;
 
-      // 2. Si hay una solicitud asociada, validamos su estado
       if (data.solicitudId) {
         const solicitud = await queryRunner.manager.findOne(Solicitud, {
           where: { id: Number(data.solicitudId) }
@@ -32,12 +30,10 @@ export class OrdenesCompraService {
           throw new BadRequestException('Esta solicitud ya fue utilizada en otra Orden de Compra');
         }
 
-        // Actualizamos el estado de la solicitud dentro de la transacción
         solicitud.estado = 'APROBADO_Y_COMPRADO';
         await queryRunner.manager.save(solicitud);
       }
 
-      // 3. Crear la Orden de Compra con los campos nuevos
       const nuevaOrden = queryRunner.manager.create(OrdenCompra, {
         proveedor: data.proveedor || data.proveedorNombre,
         fecha: new Date(),
@@ -45,34 +41,31 @@ export class OrdenesCompraService {
         autoriza: data.autoriza || 'LUCRECIA CAPÓ LLORENTE',
         retira: data.retira || '',
         
-        // --- NUEVOS CAMPOS AGREGADOS ---
         plazoPago: data.plazoPago,
         formaPago: data.formaPago,
-        direccionDescarga: data.direccionDescarga || 'PLANTA VILLA MARÍA',
+        direccionDescarga: data.direccionDescarga || 'Av Brigadier Gral San Martin 235 - 5900 Villa María - Cba.',
         tiempoEstimado: data.tiempoEstimado,
         especificaciones: data.especificaciones,
-        // -------------------------------
 
+        // --- CAMBIO CLAVE: PRECIO OPCIONAL ---
         items: itemsProcesados.map((i: any) => ({
           producto: i.producto,
           cantidad: Number(i.cantidad),
-          precio: Number(i.precio || 0)
+          // Si el precio es null, undefined o "", se guarda como null en la DB
+          precio: (i.precio === '' || i.precio === null || i.precio === undefined) 
+                   ? null 
+                   : Number(i.precio)
         }))
       } as any);
 
       const resultado = await queryRunner.manager.save(nuevaOrden);
-
-      // Si todo salió bien, confirmamos los cambios en la DB
       await queryRunner.commitTransaction();
       return resultado;
 
     } catch (error) {
-      // Si algo falló (ej: la solicitud ya estaba comprada), revertimos todo
       await queryRunner.rollbackTransaction();
-      console.error("Error en transacción de OC:", error);
       throw new BadRequestException(error.message);
     } finally {
-      // Liberamos el query runner
       await queryRunner.release();
     }
   }
