@@ -26,11 +26,11 @@ export class OrdenesCompraService {
         });
 
         if (!solicitud) throw new NotFoundException('La solicitud no existe');
-        if (solicitud.estado === 'APROBADO_Y_COMPRADO') {
+        if (solicitud.estado === 'COMPRADO') {
           throw new BadRequestException('Esta solicitud ya fue utilizada en otra Orden de Compra');
         }
 
-        solicitud.estado = 'APROBADO_Y_COMPRADO';
+        solicitud.estado = 'Comprado';
         await queryRunner.manager.save(solicitud);
       }
 
