@@ -8,7 +8,7 @@ export class Vehiculo {
   @Column({ unique: true })
   patente: string;
 
-  @Column()
+  @Column({ nullable: true }) // Cambia temporalmente a true
   marca: string;
 
   @Column()

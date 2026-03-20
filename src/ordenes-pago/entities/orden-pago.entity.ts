@@ -6,8 +6,8 @@ export class OrdenPago {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  numero_orden_pago: string; // Ej: OP-0001
+  @Column({ nullable: true }) // También a true
+  numero_orden_pago: string;
 
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   monto_total: number;
