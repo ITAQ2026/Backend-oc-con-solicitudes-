@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { OrdenCompra } from '../../ordenes-compra/entities/orden-compra.entity';
 
 @Entity('ordenes_pago')
 export class OrdenPago {
@@ -6,29 +7,35 @@ export class OrdenPago {
   id: number;
 
   @Column()
-  proveedorNombre: string;
+  numero_orden_pago: string; // Ej: OP-0001
+
+  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  monto_total: number;
+
+  @Column({ default: 'Pendiente' }) // Pendiente, Pagado, Anulado
+  estado: string;
 
   @Column({ nullable: true })
-  productoServicio: string; // <-- Agregar esto
+  metodo_pago: string; // Transferencia, Cheque, Efectivo
 
-  @Column('float', { default: 0 })
-  monto: number;
+  @Column({ type: 'text', nullable: true })
+  notas: string;
 
-  @Column('int', { default: 1 })
-  cantidad: number; // <-- Agregar esto
-
-  @Column('float', { default: 0 })
-  precioUnitario: number; // <-- Agregar esto
-
-  @Column({ nullable: true })
-  caja: string; // <-- Agregar esto
-
-  @Column({ default: 'Transferencia' })
-  metodoPago: string;
+  // Relación con la Orden de Compra (opcional si es un pago suelto)
+  @ManyToOne(() => OrdenCompra)
+  @JoinColumn({ name: 'orden_compra_id' })
+  orden_compra: OrdenCompra;
 
   @Column({ nullable: true })
-  referencia: string;
+  orden_compra_id: number;
+
+  // Auditoría
+  @Column()
+  creado_por: number;
+
+  @Column({ nullable: true })
+  autorizado_por: number;
 
   @CreateDateColumn()
-  fecha: Date;
+  fecha_creacion: Date;
 }

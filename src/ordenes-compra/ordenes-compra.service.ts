@@ -1,79 +1,34 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
-import { OrdenCompra } from './entities/orden-compra.entity';
-import { Solicitud } from '../solicitudes/entities/solicitud.entity';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { OrdenesCompraRepository } from './ordenes-compra.repository';
+import { CreateOrdenDto } from './dto/create-orden.dto';
 
 @Injectable()
 export class OrdenesCompraService {
-  constructor(
-    @InjectRepository(OrdenCompra)
-    private repo: Repository<OrdenCompra>,
-    private dataSource: DataSource,
-  ) {}
+  constructor(private readonly ordenRepo: OrdenesCompraRepository) {}
 
-  async create(data: any) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
+  async crear(datos: CreateOrdenDto) {
     try {
-      let itemsProcesados = typeof data.items === 'string' ? JSON.parse(data.items) : data.items;
+      // 1. Convertimos el Array del DTO a String para la DB
+      const itemsString = JSON.stringify(datos.items);
 
-      if (data.solicitudId) {
-        const solicitud = await queryRunner.manager.findOne(Solicitud, {
-          where: { id: Number(data.solicitudId) }
-        });
+      // 2. Extraemos 'items' de 'datos' para que no choque al hacer el spread (...resto)
+      const { items, ...resto } = datos;
 
-        if (!solicitud) throw new NotFoundException('La solicitud no existe');
-        if (solicitud.estado === 'COMPRADO') {
-          throw new BadRequestException('Esta solicitud ya fue utilizada en otra Orden de Compra');
-        }
-
-        solicitud.estado = 'Comprado';
-        await queryRunner.manager.save(solicitud);
-      }
-
-      const nuevaOrden = queryRunner.manager.create(OrdenCompra, {
-        proveedor: data.proveedor || data.proveedorNombre,
+      // 3. Usamos 'as any' para silenciar el error de validación de tipos de TS
+      // Esto es seguro porque acabamos de procesar 'itemsString' manualmente
+      const nuevaOrden = this.ordenRepo.create({
+        ...resto,
+        items: itemsString,
         fecha: new Date(),
-        solicitudId: data.solicitudId ? Number(data.solicitudId) : undefined,
-        autoriza: data.autoriza || 'LUCRECIA CAPÓ LLORENTE',
-        retira: data.retira || '',
-        
-        plazoPago: data.plazoPago,
-        formaPago: data.formaPago,
-        direccionDescarga: data.direccionDescarga || 'Av Brigadier Gral San Martin 235 - 5900 Villa María - Cba.',
-        tiempoEstimado: data.tiempoEstimado,
-        especificaciones: data.especificaciones,
+      } as any); 
 
-        // --- CAMBIO CLAVE: PRECIO OPCIONAL ---
-        items: itemsProcesados.map((i: any) => ({
-          producto: i.producto,
-          cantidad: Number(i.cantidad),
-          // Si el precio es null, undefined o "", se guarda como null en la DB
-          precio: (i.precio === '' || i.precio === null || i.precio === undefined) 
-                   ? null 
-                   : Number(i.precio)
-        }))
-      } as any);
-
-      const resultado = await queryRunner.manager.save(nuevaOrden);
-      await queryRunner.commitTransaction();
-      return resultado;
-
+      return await this.ordenRepo.save(nuevaOrden);
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw new BadRequestException(error.message);
-    } finally {
-      await queryRunner.release();
+      throw new BadRequestException("Error al generar la Orden: " + error.message);
     }
   }
 
   async findAll() {
-    return await this.repo.find({
-      relations: ['items', 'solicitud'],
-      order: { id: 'DESC' }
-    });
+    return await this.ordenRepo.obtenerHistorial();
   }
 }

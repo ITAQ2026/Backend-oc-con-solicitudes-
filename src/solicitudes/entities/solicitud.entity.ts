@@ -14,10 +14,14 @@ export class Solicitud {
 
   // NUEVO: Aquí guardaremos el array de objetos [{producto, cantidad, precio}]
   @Column({ type: 'text', nullable: true })
-  items: string;
+  items: any;
 
   @Column('text', { nullable: true })
   justificacion: string;
+
+  // AGREGADO: Campo para el rango de presupuesto seleccionado en el frontend
+  @Column({ name: 'monto_estimado', type: 'varchar', length: 100, nullable: true })
+  monto_estimado: string;
 
   // Eliminamos fecha_limite manual y dejamos que se maneje por creación o urgencia
   @Column({ default: 'Conveniente' })

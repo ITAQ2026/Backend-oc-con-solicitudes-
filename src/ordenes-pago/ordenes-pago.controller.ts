@@ -1,17 +1,27 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query } from '@nestjs/common';
 import { OrdenesPagoService } from './ordenes-pago.service';
+import { CreateOrdenPagoDto } from './dto/create-orden-pago.dto';
 
-@Controller('ordenes-pago') // Ruta: http://localhost:3000/ordenes-pago
+@Controller('ordenes-pago')
 export class OrdenesPagoController {
-  constructor(private readonly ordenesPagoService: OrdenesPagoService) {}
+  constructor(private readonly service: OrdenesPagoService) {}
 
   @Post()
-  create(@Body() body: any) {
-    return this.ordenesPagoService.create(body);
+  async crear(@Body() datos: CreateOrdenPagoDto, @Query('adminId') adminId: string) {
+    return this.service.crear(datos, +adminId || 1);
   }
 
   @Get()
-  findAll() {
-    return this.ordenesPagoService.findAll();
+  async listar() {
+    return this.service.findAll();
+  }
+
+  @Patch(':id/estado')
+  async actualizarEstado(
+    @Param('id') id: string,
+    @Body('estado') estado: string,
+    @Query('adminId') adminId: string
+  ) {
+    return this.service.cambiarEstado(+id, estado, +adminId || 1);
   }
 }

@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { VehiculosController } from './vehiculos.controller';
 import { VehiculosService } from './vehiculos.service';
+import { VehiculosController } from './vehiculos.controller';
 import { Vehiculo } from './entities/vehiculos.entity';
+import { VehiculosRepository } from './vehiculos.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Vehiculo])], // Registra la entidad aquí
+  imports: [TypeOrmModule.forFeature([Vehiculo])],
   controllers: [VehiculosController],
-  providers: [VehiculosService],
-  exports: [VehiculosService], // Lo exportamos para que OT pueda usarlo
+  providers: [VehiculosService, VehiculosRepository],
 })
 export class VehiculosModule {}

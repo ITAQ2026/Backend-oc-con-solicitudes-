@@ -1,61 +1,45 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Solicitud } from './entities/solicitud.entity';
+import { SolicitudesRepository } from './solicitudes.repository';
+import { CreateSolicitudDto } from './dto/create-solicitud.dto';
 
 @Injectable()
 export class SolicitudesService {
   constructor(
-    @InjectRepository(Solicitud)
-    private repo: Repository<Solicitud>,
+    private readonly solicitudRepo: SolicitudesRepository,
   ) {}
 
-  async crear(datos: any, usuarioId: number) {
-    try {
-      // Si los items vienen como objeto, los convertimos a string para la DB
-      const itemsString = typeof datos.items === 'object' 
-        ? JSON.stringify(datos.items) 
-        : datos.items;
+  async crear(datos: CreateSolicitudDto, usuarioId: number) {
+  try {
+    // 1. Convertimos a string (lo que la DB espera)
+    const itemsString = typeof datos.items === 'object' 
+      ? JSON.stringify(datos.items) 
+      : String(datos.items);
 
-      const nueva = this.repo.create({
-        area: datos.area,
-        solicitante: datos.solicitante,
-        items: itemsString, // Guardamos la estructura dinámica
-        justificacion: datos.justificacion,
-        urgencia: datos.urgencia || 'Conveniente',
-        link_referencia: datos.link_referencia,
-        estado: 'En Revisión', // Estado inicial solicitado
-        usuario_id: usuarioId,
-        // fecha_creacion se genera sola por el decorador @CreateDateColumn
-      });
+    // 2. Extraemos para limpiar el objeto 'resto'
+    const { items, usuario_id, ...resto } = datos;
 
-      return await this.repo.save(nueva);
-    } catch (error) {
-      throw new BadRequestException("Error al crear la solicitud: " + error.message);
-    }
+    // 3. Creamos el objeto con un casting para que TS no se queje
+    const nuevaSolicitud = this.solicitudRepo.create({
+      ...resto,
+      items: itemsString,    // Aquí ya es string
+      usuario_id: usuarioId,
+      estado: 'En Revisión',
+    } as any); // <--- AGREGA 'as any' AQUÍ para forzar a TS a aceptar el objeto
+
+    return await this.solicitudRepo.save(nuevaSolicitud);
+  } catch (error) {
+    throw new BadRequestException("Error al crear: " + error.message);
   }
-
+}
   async obtenerTodas(usuario: { id: number; rol: string }) {
-    const opciones: any = {
-      order: { fecha_creacion: 'DESC' },
-    };
-
-    // Si no es admin, filtramos por su propio ID
-    if (usuario.rol !== 'admin') {
-      opciones.where = { usuario_id: usuario.id };
-    } else {
-      opciones.relations = ['usuario'];
-    }
-
-    return await this.repo.find(opciones);
+    return await this.solicitudRepo.buscarConFiltros(usuario);
   }
 
   async actualizarEstado(id: number, estado: string) {
-    // Validamos que el estado sea uno de los permitidos
     const estadosValidos = ['En Revisión', 'Aprobado', 'Rechazado'];
     if (!estadosValidos.includes(estado)) {
       throw new BadRequestException("Estado no válido");
     }
-    return await this.repo.update(id, { estado });
+    return await this.solicitudRepo.update(id, { estado });
   }
 }

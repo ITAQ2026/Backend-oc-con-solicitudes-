@@ -1,21 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Recibo } from './entities/recibo.entity';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { RecibosRepository } from './recibos.repository';
+import { CreateReciboDto } from './dto/create-recibo.dto';
 
 @Injectable()
 export class RecibosService {
-  constructor(
-    @InjectRepository(Recibo)
-    private readonly repository: Repository<Recibo>,
-  ) {}
+  constructor(private readonly repo: RecibosRepository) {}
 
-  findAll() {
-    return this.repository.find({ order: { id: 'DESC' } });
+  async crear(datos: CreateReciboDto, adminId: number) {
+    try {
+      const nuevo = this.repo.create({
+        ...datos,
+        creado_por: adminId
+      });
+      return await this.repo.save(nuevo);
+    } catch (error) {
+      throw new BadRequestException('Error al registrar recibo: ' + error.message);
+    }
   }
 
-  async create(data: Partial<Recibo>) {
-    const nuevo = this.repository.create(data);
-    return this.repository.save(nuevo);
+  async findAll() {
+    return await this.repo.find({ order: { id: 'DESC' } });
+  }
+
+  async findByOrden(ordenId: number) {
+    return await this.repo.buscarPorOrden(ordenId);
   }
 }

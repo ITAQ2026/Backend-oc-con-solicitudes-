@@ -1,5 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { OrdenTrabajo } from '../../ordenes-trabajo/entities/orden-trabajo.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity('vehiculos')
 export class Vehiculo {
@@ -10,18 +9,39 @@ export class Vehiculo {
   patente: string;
 
   @Column()
+  marca: string;
+
+  @Column()
   modelo: string;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ nullable: true })
   anio: number;
 
-  @Column({ type: 'date', nullable: true })
-  vencimiento_vtv: string;
+  @Column({ nullable: true })
+  numero_chasis: string;
 
-  @Column({ default: 'Activo' })
+  @Column({ default: 'Disponible' }) // Disponible, En Uso, En Taller, Baja
   estado: string;
 
-  // Agregamos esta línea para cerrar el círculo de la relación
-  @OneToMany(() => OrdenTrabajo, (ot) => ot.vehiculo)
-  ordenes: OrdenTrabajo[];
+  @Column({ type: 'int', default: 0 })
+  kilometraje_actual: number;
+
+  @Column({ type: 'text', nullable: true })
+  observaciones: string;
+
+  // Auditoría
+  @Column({ nullable: true })
+  creado_por: number;
+
+  @Column({ nullable: true })
+  actualizado_por: number;
+
+  @CreateDateColumn()
+  fecha_alta: Date;
+
+  @UpdateDateColumn()
+  fecha_actualizacion: Date;
+
+  @DeleteDateColumn()
+  fecha_baja: Date;
 }

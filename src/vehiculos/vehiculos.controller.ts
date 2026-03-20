@@ -1,23 +1,29 @@
-import { Controller, Get, Post, Body, Delete, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { VehiculosService } from './vehiculos.service';
-import { Vehiculo } from './entities/vehiculos.entity';
+import { CreateVehiculoDto } from './dto/create-vehiculo.dto';
+import { UpdateVehiculoDto } from './dto/update-vehiculo.dto';
 
 @Controller('vehiculos')
 export class VehiculosController {
-  constructor(private readonly vehiculosService: VehiculosService) {}
-
-  @Get()
-  findAll() {
-    return this.vehiculosService.findAll();
-  }
+  constructor(private readonly service: VehiculosService) {}
 
   @Post()
-  create(@Body() vehiculoData: Partial<Vehiculo>) {
-    return this.vehiculosService.create(vehiculoData);
+  async crear(@Body() datos: CreateVehiculoDto, @Query('adminId') adminId: string) {
+    return this.service.crear(datos, +adminId || 1);
+  }
+
+  @Get()
+  async listar() {
+    return this.service.findAll();
+  }
+
+  @Patch(':id')
+  async editar(@Param('id') id: string, @Body() datos: UpdateVehiculoDto, @Query('adminId') adminId: string) {
+    return this.service.actualizar(+id, datos, +adminId || 1);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.vehiculosService.remove(id);
+  async borrar(@Param('id') id: string) {
+    return this.service.eliminar(+id);
   }
 }

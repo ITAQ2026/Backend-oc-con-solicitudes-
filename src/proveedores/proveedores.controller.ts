@@ -1,22 +1,33 @@
-import { Controller, Get, Post, Body, Delete, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ProveedoresService } from './proveedores.service';
+import { CreateProveedorDto } from './dto/create-proveedor.dto';
+import { UpdateProveedorDto } from './dto/update-proveedor.dto';
 
 @Controller('proveedores')
 export class ProveedoresController {
   constructor(private readonly service: ProveedoresService) {}
 
+  @Post()
+  async crear(@Body() datos: CreateProveedorDto, @Query('adminId') adminId: string) {
+    return this.service.crear(datos, +adminId || 1);
+  }
+
   @Get()
-  findAll() {
+  async listar() {
     return this.service.findAll();
   }
 
-  @Post()
-  create(@Body() body: any) {
-    return this.service.create(body);
+  @Patch(':id')
+  async editar(
+    @Param('id') id: string, 
+    @Body() datos: UpdateProveedorDto, 
+    @Query('adminId') adminId: string
+  ) {
+    return this.service.actualizar(+id, datos, +adminId || 1);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.service.remove(+id);
+  async borrar(@Param('id') id: string) {
+    return this.service.eliminar(+id);
   }
 }

@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { OrdenCompra } from '../../ordenes-compra/entities/orden-compra.entity';
 
 @Entity('recibos')
 export class Recibo {
@@ -6,20 +7,29 @@ export class Recibo {
   id: number;
 
   @Column()
-  emisor: string;
+  numero_recibo: string; // El número físico del comprobante
 
-  @Column()
-  receptor: string;
-
-  @Column({ type: 'text' })
-  concepto: string;
-
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   monto: number;
 
-  @Column({ default: 'Efectivo' })
-  condicion_pago: string;
+  @Column({ type: 'date' })
+  fecha_emision: Date;
+
+  @Column({ type: 'text', nullable: true })
+  observaciones: string;
+
+  // Relación con la Orden de Compra
+  @ManyToOne(() => OrdenCompra)
+  @JoinColumn({ name: 'orden_id' })
+  orden: OrdenCompra;
+
+  @Column()
+  orden_id: number;
+
+  // Auditoría
+  @Column()
+  creado_por: number;
 
   @CreateDateColumn()
-  fecha: Date;
+  fecha_registro: Date;
 }

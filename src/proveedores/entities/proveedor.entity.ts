@@ -1,29 +1,35 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('proveedores')
 export class Proveedor {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column()
   nombre: string;
 
-  @Column({ nullable: true })
+  @Column({ unique: true, nullable: true })
   cuit: string;
 
   @Column({ nullable: true })
-  direccion: string;
-
-  @Column({ nullable: true })
-  localidad: string;
-
-  @Column({ nullable: true })
-  provincia: string;
+  email: string;
 
   @Column({ nullable: true })
   telefono: string;
 
-  @Column({ name: 'codigo_postal', nullable: true }) // 👈 Esto mapea el nombre de la DB
-  codigo_postal: string;
+  @Column({ nullable: true })
+  direccion: string;
 
+  // Auditoría
+  @Column({ nullable: true })
+  creado_por: number;
+
+  @Column({ nullable: true })
+  actualizado_por: number;
+
+  @CreateDateColumn()
+  fecha_creacion: Date;
+
+  @UpdateDateColumn()
+  fecha_actualizacion: Date;
 }
