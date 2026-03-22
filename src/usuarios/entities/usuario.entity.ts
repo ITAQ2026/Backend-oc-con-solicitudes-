@@ -34,7 +34,8 @@ export class Usuario {
   @UpdateDateColumn()
   fecha_actualizacion: Date;
 
-  @DeleteDateColumn()
+  // IMPORTANTE: Mapeo explícito al nombre de la columna en BD
+  @DeleteDateColumn({ name: 'fecha_borrado', nullable: true })
   fecha_borrado: Date;
 
   @OneToMany(() => Solicitud, (solicitud) => solicitud.usuario)
