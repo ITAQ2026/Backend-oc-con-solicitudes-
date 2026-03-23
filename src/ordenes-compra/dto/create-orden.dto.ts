@@ -1,4 +1,22 @@
-import { IsString, IsNotEmpty, IsOptional, IsArray } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsArray, IsNumber, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+class ItemOrdenDto {
+  @IsString() @IsNotEmpty()
+  producto: string;
+
+  @IsNumber()
+  cantidad: number;
+
+  @IsNumber() @IsOptional()
+  precio: number;
+
+  @IsString()
+  moneda: string;
+
+  @IsString()
+  iva: string;
+}
 
 export class CreateOrdenDto {
   @IsString() @IsNotEmpty()
@@ -17,17 +35,14 @@ export class CreateOrdenDto {
   tiempoEstimado?: string;
 
   @IsString() @IsOptional()
-  especificaciones?: string;
-
-  @IsString() @IsOptional()
   autoriza?: string;
 
-  @IsString() @IsOptional()
-  retira?: string;
-
   @IsOptional()
-  solicitudId?: number | string;
+  @IsNumber()
+  solicitudId?: number;
 
-  @IsArray() @IsNotEmpty()
-  items: any[]; // Array de objetos que viene del Front
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ItemOrdenDto)
+  items: ItemOrdenDto[];
 }
