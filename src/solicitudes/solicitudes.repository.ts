@@ -14,7 +14,7 @@ export class SolicitudesRepository extends Repository<Solicitud> {
       .orderBy('solicitud.fecha_creacion', 'DESC');
 
     if (usuario.rol !== 'admin') {
-      query.where('solicitud.usuario_id = :id', { id: usuario.id });
+      query.where('solicitud.usuario_id = :userid', { userid: usuario.id });
     }
 
     return await query.getMany();
