@@ -2,13 +2,15 @@ import { IsString, IsNotEmpty, IsOptional, IsArray, IsNumber, ValidateNested } f
 import { Type } from 'class-transformer';
 
 class ItemOrdenDto {
-  @IsString() @IsNotEmpty()
+  @IsString() 
+  @IsNotEmpty()
   producto: string;
 
   @IsNumber()
   cantidad: number;
 
-  @IsNumber() @IsOptional()
+  @IsNumber() 
+  @IsOptional()
   precio: number;
 
   @IsString()
@@ -19,22 +21,37 @@ class ItemOrdenDto {
 }
 
 export class CreateOrdenDto {
-  @IsString() @IsNotEmpty()
+  @IsString() 
+  @IsNotEmpty()
   proveedorNombre: string;
 
-  @IsString() @IsOptional()
+  @IsString() 
+  @IsOptional()
   plazoPago?: string;
 
-  @IsString() @IsOptional()
+  @IsString() 
+  @IsOptional()
   formaPago?: string;
 
-  @IsString() @IsOptional()
+  @IsString() 
+  @IsOptional()
   direccionDescarga?: string;
 
-  @IsString() @IsOptional()
+  @IsString() 
+  @IsOptional()
   tiempoEstimado?: string;
 
-  @IsString() @IsOptional()
+  // AGREGADOS PARA COINCIDIR CON EL FORMULARIO DEL FRONTEND
+  @IsString()
+  @IsOptional()
+  especificaciones?: string;
+
+  @IsString()
+  @IsOptional()
+  retira?: string;
+
+  @IsString() 
+  @IsOptional()
   autoriza?: string;
 
   @IsOptional()

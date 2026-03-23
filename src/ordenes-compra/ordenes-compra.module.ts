@@ -4,14 +4,13 @@ import { OrdenesCompraService } from './ordenes-compra.service';
 import { OrdenesCompraController } from './ordenes-compra.controller';
 import { OrdenCompra } from './entities/orden-compra.entity';
 import { OrdenCompraItem } from './entities/orden-compra-item.entity';
-import { OrdenesCompraRepository } from './ordenes-compra.repository';
+import { Solicitud } from '../solicitudes/entities/solicitud.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OrdenCompra, OrdenCompraItem])
+    TypeOrmModule.forFeature([OrdenCompra, OrdenCompraItem, Solicitud])
   ],
   controllers: [OrdenesCompraController],
-  providers: [OrdenesCompraService, OrdenesCompraRepository],
-  exports: [OrdenesCompraService]
+  providers: [OrdenesCompraService],
 })
 export class OrdenesCompraModule {}
