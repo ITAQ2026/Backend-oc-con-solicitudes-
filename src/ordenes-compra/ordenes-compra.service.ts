@@ -32,14 +32,13 @@ export class OrdenesCompraService {
 
       const ordenGuardada = await this.ordenRepo.save(nuevaOrden);
 
-      // 2. Si hay una solicitud vinculada, la marcamos como COMPRADO
-      if (datos.solicitudId) {
-        await this.solicitudRepo.update(datos.solicitudId, {
-          estado: 'COMPRADO'
-        } as any);
-      }
-
-      return ordenGuardada;
+if (datos.solicitudId) {
+  // Esto actualiza la base de datos directamente
+  await this.solicitudRepo.update(datos.solicitudId, {
+    estado: 'COMPRADO'
+  } as any);
+}
+return ordenGuardada;
     } catch (error) {
       console.error("Detalle error DB:", error);
       throw new BadRequestException("Error al generar la Orden: " + error.message);
