@@ -20,4 +20,18 @@ export class CreateProveedorDto {
   @IsString()
   @IsOptional()
   direccion?: string;
+
+  // --- NUEVOS CAMPOS AGREGADOS ---
+  @IsString()
+  @IsOptional()
+  localidad?: string;
+
+  @IsString()
+  @IsOptional()
+  provincia?: string;
+
+  @IsString()
+  @IsOptional()
+  codigoPostal?: string;
+  // -------------------------------
 }

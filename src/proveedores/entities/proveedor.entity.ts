@@ -20,6 +20,17 @@ export class Proveedor {
   @Column({ nullable: true })
   direccion: string;
 
+  // --- NUEVOS CAMPOS AGREGADOS ---
+  @Column({ nullable: true })
+  localidad: string;
+
+  @Column({ nullable: true })
+  provincia: string;
+
+  @Column({ nullable: true, name: 'codigo_postal' }) // Usamos snake_case para la DB
+  codigoPostal: string; 
+  // -------------------------------
+
   // Auditoría
   @Column({ nullable: true })
   creado_por: number;
