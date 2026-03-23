@@ -8,22 +8,23 @@ export class OrdenesCompraService {
 
   async crear(datos: CreateOrdenDto) {
     try {
-      // 1. Convertimos el Array del DTO a String para la DB
+      // 1. Convertimos el Array del DTO a String para la DB (Postgres/MySQL)
       const itemsString = JSON.stringify(datos.items);
 
-      // 2. Extraemos 'items' de 'datos' para que no choque al hacer el spread (...resto)
-      const { items, ...resto } = datos;
+      // 2. CORRECCIÓN CLAVE: Extraemos 'proveedorNombre' y lo asignamos a 'proveedor'
+      // También extraemos 'items' para que no choque con el string que creamos
+      const { items, proveedorNombre, ...resto } = datos;
 
-      // 3. Usamos 'as any' para silenciar el error de validación de tipos de TS
-      // Esto es seguro porque acabamos de procesar 'itemsString' manualmente
       const nuevaOrden = this.ordenRepo.create({
         ...resto,
+        proveedor: proveedorNombre, // <--- MAPEADO PARA LA BASE DE DATOS
         items: itemsString,
         fecha: new Date(),
       } as any); 
 
       return await this.ordenRepo.save(nuevaOrden);
     } catch (error) {
+      // Si el error es de la DB, lo capturamos con un mensaje claro
       throw new BadRequestException("Error al generar la Orden: " + error.message);
     }
   }
