@@ -1,24 +1,33 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsIn } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateOrdenPagoDto {
-  @IsString()
-  @IsNotEmpty()
+  @IsString() @IsNotEmpty()
   numero_orden_pago: string;
 
-  @IsNumber()
-  @IsNotEmpty()
+  @IsString() @IsNotEmpty()
+  proveedorNombre: string;
+
+  @IsString() @IsNotEmpty()
+  productoServicio: string;
+
+  @IsNumber() @IsNotEmpty()
+  cantidad: number;
+
+  @IsNumber() @IsNotEmpty()
+  precioUnitario: number;
+
+  @IsNumber() @IsNotEmpty()
   monto_total: number;
 
-  @IsString()
-  @IsOptional()
-  @IsIn(['Transferencia', 'Cheque', 'Efectivo', 'Otro'])
+  @IsString() @IsOptional()
   metodo_pago?: string;
 
-  @IsNumber()
-  @IsOptional()
-  orden_compra_id?: number;
+  @IsString() @IsOptional()
+  caja?: string;
 
-  @IsString()
-  @IsOptional()
+  @IsString() @IsOptional()
   notas?: string;
+
+  @IsNumber() @IsOptional()
+  orden_compra_id?: number;
 }
