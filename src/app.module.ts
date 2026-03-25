@@ -39,7 +39,7 @@ import { RecibosModule } from './recibos/recibos.module';
           database: dbUrl ? undefined : configService.get<string>('DB_DATABASE'),
           
           autoLoadEntities: true, // Esto cargará Vehiculo, OrdenTrabajo y Recibo automáticamente
-          synchronize: true, // Crea las tablas en la DB si no existen
+          synchronize: false, // Crea las tablas en la DB si no existen
           
           ssl: dbUrl && dbUrl.includes('render.com') 
                ? { rejectUnauthorized: false } 
