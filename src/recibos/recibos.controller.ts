@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { RecibosService } from './recibos.service';
 import { CreateReciboDto } from './dto/create-recibo.dto';
 
-@Controller('recibos')
+@Controller('api/recibos')
 export class RecibosController {
   constructor(private readonly service: RecibosService) {}
 
