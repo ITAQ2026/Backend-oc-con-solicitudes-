@@ -9,9 +9,14 @@ export class OrdenesPagoRepository extends Repository<OrdenPago> {
   }
 
   async listarConDetalles() {
-    return await this.find({
-      relations: ['orden_compra'],
-      order: { id: 'DESC' }
-    });
+    try {
+      // Intentamos un find simple primero
+      return await this.find({
+        order: { id: 'DESC' }
+      });
+    } catch (error) {
+      console.error("DETALLE DEL ERROR EN DB:", error);
+      throw error; // Esto enviará el detalle a los logs de Render
+    }
   }
 }

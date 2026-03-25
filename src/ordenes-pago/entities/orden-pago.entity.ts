@@ -42,8 +42,8 @@ export class OrdenPago {
   creado_por: number;
 
   @CreateDateColumn()
-  fecha_creacion: Date;
-
+  createdAt: Date; 
+  
   @Column({ nullable: true }) 
   autorizado_por: number;
 }
