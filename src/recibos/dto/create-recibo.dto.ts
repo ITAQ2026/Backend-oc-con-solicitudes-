@@ -1,23 +1,27 @@
-import { IsString, IsNotEmpty, IsNumber, IsDateString, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateReciboDto {
   @IsString()
   @IsNotEmpty()
-  numero_recibo: string;
+  emisor: string;
+
+  @IsString()
+  @IsNotEmpty()
+  receptor: string;
+
+  @IsString()
+  @IsNotEmpty()
+  concepto: string;
 
   @IsNumber()
   @IsNotEmpty()
   monto: number;
 
-  @IsDateString()
+  @IsString()
   @IsNotEmpty()
-  fecha_emision: string;
+  condicion_pago: string;
 
   @IsNumber()
-  @IsNotEmpty()
-  orden_id: number;
-
-  @IsString()
   @IsOptional()
-  observaciones?: string;
+  orden_id?: number; 
 }
