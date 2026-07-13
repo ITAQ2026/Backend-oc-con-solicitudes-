@@ -9,8 +9,8 @@ import { OrdenesTrabajoRepository } from './ordenes-trabajo.repository'; // 1. A
   imports: [TypeOrmModule.forFeature([OrdenTrabajo])],
   controllers: [OrdenesTrabajoController],
   providers: [
-    OrdenesTrabajoService, 
-    OrdenesTrabajoRepository // 2. Agregalo aquí para que Nest lo pueda inyectar
+    OrdenesTrabajoService,
+    OrdenesTrabajoRepository, // 2. Agregalo aquí para que Nest lo pueda inyectar
   ],
 })
 export class OrdenesTrabajoModule {}

@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuario } from '../usuarios/entities/usuario.entity';
@@ -23,7 +28,9 @@ export class FacturasService {
       });
       return await this.repo.save(nueva);
     } catch (error) {
-      throw new BadRequestException('Error al registrar factura: ' + error.message);
+      throw new BadRequestException(
+        'Error al registrar factura: ' + error.message,
+      );
     }
   }
 
@@ -33,8 +40,12 @@ export class FacturasService {
 
   async eliminar(id: number, adminId: number) {
     const usuario = await this.usuariosRepo.findOne({ where: { id: adminId } });
-    if ((usuario?.email || '').toLowerCase().trim() !== DELETE_AUTHORIZED_EMAIL) {
-      throw new ForbiddenException('Solo admin@sistema.com puede borrar facturas.');
+    if (
+      (usuario?.email || '').toLowerCase().trim() !== DELETE_AUTHORIZED_EMAIL
+    ) {
+      throw new ForbiddenException(
+        'Solo admin@sistema.com puede borrar facturas.',
+      );
     }
 
     const factura = await this.repo.findOne({ where: { id } });

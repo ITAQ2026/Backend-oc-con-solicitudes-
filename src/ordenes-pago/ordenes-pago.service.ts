@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { OrdenesPagoRepository } from './ordenes-pago.repository';
 import { CreateOrdenPagoDto } from './dto/create-orden-pago.dto';
 
@@ -10,11 +14,13 @@ export class OrdenesPagoService {
     try {
       const nueva = this.repo.create({
         ...datos,
-        creado_por: adminId
+        creado_por: adminId,
       });
       return await this.repo.save(nueva);
     } catch (error) {
-      throw new BadRequestException('Error al crear Orden de Pago: ' + error.message);
+      throw new BadRequestException(
+        'Error al crear Orden de Pago: ' + error.message,
+      );
     }
   }
 

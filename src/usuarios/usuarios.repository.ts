@@ -11,4 +11,32 @@ export class UsuariosRepository extends Repository<Usuario> {
   async buscarPorEmail(email: string) {
     return await this.findOne({ where: { email } });
   }
+
+  /**
+   * Igual que buscarPorEmail pero incluye el hash de password (excluido por defecto).
+   * Solo debe usarse para validar credenciales de login.
+   */
+  async buscarPorEmailConPassword(email: string) {
+    return await this.findOne({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        nombre: true,
+        rol: true,
+      },
+    });
+  }
+
+  /**
+   * Busca un email en la lista blanca (registro en tabla usuarios)
+   * Incluye usuarios borrados para permitir reactivación
+   */
+  async estaEnListaBlanca(email: string) {
+    return await this.findOne({
+      where: { email },
+      withDeleted: true,
+    });
+  }
 }

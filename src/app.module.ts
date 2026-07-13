@@ -1,7 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_GUARD } from '@nestjs/core';
 
+import { AuthModule } from './auth/auth.module';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { RolesGuard } from './auth/roles.guard';
 import { ProveedoresModule } from './proveedores/proveedores.module';
 import { OrdenesCompraModule } from './ordenes-compra/ordenes-compra.module';
 import { OrdenesPagoModule } from './ordenes-pago/ordenes-pago.module';
@@ -18,8 +22,8 @@ import { FacturasModule } from './facturas/facturas.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
-      isGlobal: true 
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
 
     TypeOrmModule.forRootAsync({
@@ -35,31 +39,43 @@ import { FacturasModule } from './facturas/facturas.module';
           // Si no hay URL, usa los datos de tu .env local
           host: dbUrl ? undefined : configService.get<string>('DB_HOST'),
           port: dbUrl ? undefined : configService.get<number>('DB_PORT'),
-          username: dbUrl ? undefined : configService.get<string>('DB_USERNAME'),
-          password: dbUrl ? undefined : configService.get<string>('DB_PASSWORD'),
-          database: dbUrl ? undefined : configService.get<string>('DB_DATABASE'),
-          
+          username: dbUrl
+            ? undefined
+            : configService.get<string>('DB_USERNAME'),
+          password: dbUrl
+            ? undefined
+            : configService.get<string>('DB_PASSWORD'),
+          database: dbUrl
+            ? undefined
+            : configService.get<string>('DB_DATABASE'),
+
           autoLoadEntities: true, // Esto cargará Vehiculo, OrdenTrabajo y Recibo automáticamente
           synchronize: false, // Crea las tablas en la DB si no existen
-          
-          ssl: dbUrl && dbUrl.includes('render.com') 
-               ? { rejectUnauthorized: false } 
-               : false,
+
+          ssl:
+            dbUrl && dbUrl.includes('render.com')
+              ? { rejectUnauthorized: false }
+              : false,
         };
       },
     }),
 
+    AuthModule,
     ProveedoresModule,
     OrdenesCompraModule,
     OrdenesPagoModule,
     UsuariosModule,
     SolicitudesModule,
-    
+
     // REGISTRO DE NUEVOS MÓDULOS
     VehiculosModule,
     OrdenesTrabajoModule,
     RecibosModule, // <--- Módulo de Recibos agregado
     FacturasModule,
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
 export class AppModule {}

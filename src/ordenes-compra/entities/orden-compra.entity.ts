@@ -1,6 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { OrdenCompraItem } from './orden-compra-item.entity'; // Asegúrate de que este archivo exista
-import { Solicitud } from '../../solicitudes/entities/solicitud.entity'; 
+import { Solicitud } from '../../solicitudes/entities/solicitud.entity';
 
 @Entity('ordenes_compra')
 export class OrdenCompra {

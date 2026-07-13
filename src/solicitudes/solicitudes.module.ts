@@ -9,6 +9,6 @@ import { SolicitudesRepository } from './solicitudes.repository';
   imports: [TypeOrmModule.forFeature([Solicitud])],
   controllers: [SolicitudesController],
   providers: [SolicitudesService, SolicitudesRepository], // Agregamos el Repo aquí
-  exports: [SolicitudesService, TypeOrmModule]
+  exports: [SolicitudesService, TypeOrmModule],
 })
 export class SolicitudesModule {}

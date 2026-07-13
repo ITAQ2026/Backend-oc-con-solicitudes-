@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ProveedoresRepository } from './proveedores.repository';
 import { CreateProveedorDto } from './dto/create-proveedor.dto';
 import { UpdateProveedorDto } from './dto/update-proveedor.dto';
@@ -11,11 +15,13 @@ export class ProveedoresService {
     try {
       const nuevo = this.repo.create({
         ...datos,
-        creado_por: adminId
+        creado_por: adminId,
       });
       return await this.repo.save(nuevo);
     } catch (error) {
-      throw new BadRequestException('Error al crear proveedor: ' + error.message);
+      throw new BadRequestException(
+        'Error al crear proveedor: ' + error.message,
+      );
     }
   }
 

@@ -1,24 +1,31 @@
 import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateReciboDto {
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   numero_recibo: string;
 
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   emisor: string;
 
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   receptor: string;
 
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   concepto: string;
 
-  @IsString() @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   condicion_pago: string;
 
-  @IsNumber() @IsNotEmpty()
+  @IsNumber()
+  @IsNotEmpty()
   monto: number;
 
-  @IsNumber() @IsOptional()
+  @IsNumber()
+  @IsOptional()
   orden_id?: number;
 }

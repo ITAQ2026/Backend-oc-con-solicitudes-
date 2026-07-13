@@ -1,15 +1,22 @@
-import { IsString, IsNotEmpty, IsOptional, IsArray, IsNumber, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsArray,
+  IsNumber,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class ItemOrdenDto {
-  @IsString() 
+  @IsString()
   @IsNotEmpty()
   producto: string;
 
   @IsNumber()
   cantidad: number;
 
-  @IsNumber() 
+  @IsNumber()
   @IsOptional()
   precio: number;
 
@@ -21,23 +28,23 @@ class ItemOrdenDto {
 }
 
 export class CreateOrdenDto {
-  @IsString() 
+  @IsString()
   @IsNotEmpty()
   proveedorNombre: string;
 
-  @IsString() 
+  @IsString()
   @IsOptional()
   plazoPago?: string;
 
-  @IsString() 
+  @IsString()
   @IsOptional()
   formaPago?: string;
 
-  @IsString() 
+  @IsString()
   @IsOptional()
   direccionDescarga?: string;
 
-  @IsString() 
+  @IsString()
   @IsOptional()
   tiempoEstimado?: string;
 
@@ -50,7 +57,7 @@ export class CreateOrdenDto {
   @IsOptional()
   retira?: string;
 
-  @IsString() 
+  @IsString()
   @IsOptional()
   autoriza?: string;
 

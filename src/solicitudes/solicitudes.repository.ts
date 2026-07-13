@@ -8,7 +8,11 @@ export class SolicitudesRepository extends Repository<Solicitud> {
     super(Solicitud, dataSource.createEntityManager());
   }
 
-  async buscarConFiltros(usuario: { id: number; rol: string; estado?: string }) {
+  async buscarConFiltros(usuario: {
+    id: number;
+    rol: string;
+    estado?: string;
+  }) {
     const query = this.createQueryBuilder('solicitud')
       .leftJoinAndSelect('solicitud.usuario', 'usuario')
       .orderBy('solicitud.fecha_creacion', 'DESC');

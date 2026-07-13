@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('proveedores')
 export class Proveedor {
@@ -28,7 +34,7 @@ export class Proveedor {
   provincia: string;
 
   @Column({ nullable: true, name: 'codigo_postal' }) // Usamos snake_case para la DB
-  codigoPostal: string; 
+  codigoPostal: string;
   // -------------------------------
 
   // Auditoría

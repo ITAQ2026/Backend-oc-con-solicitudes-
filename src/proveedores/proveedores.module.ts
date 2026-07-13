@@ -9,6 +9,6 @@ import { ProveedoresRepository } from './proveedores.repository';
   imports: [TypeOrmModule.forFeature([Proveedor])],
   controllers: [ProveedoresController],
   providers: [ProveedoresService, ProveedoresRepository],
-  exports: [ProveedoresService]
+  exports: [ProveedoresService],
 })
 export class ProveedoresModule {}

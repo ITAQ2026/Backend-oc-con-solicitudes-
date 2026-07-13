@@ -1,4 +1,10 @@
-import { IsString, IsNumber, IsOptional, IsNotEmpty, IsArray, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsNotEmpty,
+  IsArray,
+} from 'class-validator';
 
 export class CreateOrdenTrabajoDto {
   @IsNotEmpty({ message: 'La falla es obligatoria' })

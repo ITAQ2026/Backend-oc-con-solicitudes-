@@ -1,20 +1,35 @@
-import { 
-  Injectable, 
-  UnauthorizedException, 
-  ConflictException, 
-  NotFoundException, 
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  NotFoundException,
   OnModuleInit,
-  InternalServerErrorException
+  InternalServerErrorException,
+  ForbiddenException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { UsuariosRepository } from './usuarios.repository';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { Usuario } from './entities/usuario.entity';
+import { obtenerEmailVerificadoDeClerk } from '../auth/clerk.util';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuariosService implements OnModuleInit {
-  constructor(private readonly usuarioRepo: UsuariosRepository) {}
+  constructor(
+    private readonly usuarioRepo: UsuariosRepository,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  private emitirToken(usuario: { id: number; email: string; rol: string }) {
+    return this.jwtService.sign({
+      sub: usuario.id,
+      email: usuario.email,
+      rol: usuario.rol,
+    });
+  }
 
   /**
    * Inicializa el administrador si la tabla está vacía
@@ -23,24 +38,33 @@ export class UsuariosService implements OnModuleInit {
     try {
       const cantidad = await this.usuarioRepo.count();
       if (cantidad === 0) {
-        const hashedPassword = await bcrypt.hash('admin123', 10);
-        
+        const adminEmail =
+          this.configService.get<string>('ADMIN_EMAIL') || 'admin@sistema.com';
+        const adminPassword =
+          this.configService.get<string>('ADMIN_PASSWORD') || 'admin123';
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
         // Usamos 'as any' para evitar errores de tipado en la inicialización
         const adminInicial = this.usuarioRepo.create({
           nombre: 'Administrador Inicial',
-          email: 'admin@sistema.com',
+          email: adminEmail,
           password: hashedPassword,
           rol: 'admin',
-          creado_por: null 
+          creado_por: null,
         } as any);
 
         await this.usuarioRepo.save(adminInicial);
         console.log('------------------------------------------------');
-        console.log('🚀 SISTEMA INICIALIZADO: admin@sistema.com / admin123');
+        console.log(`SISTEMA INICIALIZADO: ${adminEmail} / ${adminPassword}`);
+        if (!this.configService.get<string>('ADMIN_PASSWORD')) {
+          console.warn(
+            'ADMIN_PASSWORD no esta definido: se uso la contrasena por defecto. Cambiala apenas inicies sesion.',
+          );
+        }
         console.log('------------------------------------------------');
       }
     } catch (error) {
-      console.error('⚠️ Error al inicializar admin:', error.message);
+      console.error('Error al inicializar admin:', error.message);
     }
   }
 
@@ -48,7 +72,7 @@ export class UsuariosService implements OnModuleInit {
    * Validación de credenciales para el Login
    */
   async login(email: string, pass: string) {
-    const usuario = await this.usuarioRepo.buscarPorEmail(email);
+    const usuario = await this.usuarioRepo.buscarPorEmailConPassword(email);
     if (!usuario) throw new UnauthorizedException('Credenciales incorrectas');
 
     const match = await bcrypt.compare(pass, usuario.password);
@@ -56,7 +80,41 @@ export class UsuariosService implements OnModuleInit {
 
     // Quitamos el password del objeto de respuesta
     const { password, ...userWithoutPass } = usuario;
-    return userWithoutPass;
+    return { token: this.emitirToken(usuario), user: userWithoutPass };
+  }
+
+  /**
+   * Valida si un email está en la lista blanca para registro
+   */
+  async validarEmailEnListaBlanca(email: string): Promise<boolean> {
+    const usuarioEnListaBlanca =
+      await this.usuarioRepo.estaEnListaBlanca(email);
+    return !!usuarioEnListaBlanca;
+  }
+
+  async validarAccesoClerk(sessionToken: string) {
+    const clerkSecretKey = this.configService.get<string>('CLERK_SECRET_KEY');
+    if (!clerkSecretKey) {
+      throw new InternalServerErrorException(
+        'CLERK_SECRET_KEY no esta configurado en el servidor.',
+      );
+    }
+
+    let email: string;
+    try {
+      email = await obtenerEmailVerificadoDeClerk(clerkSecretKey, sessionToken);
+    } catch {
+      throw new UnauthorizedException('Sesion de Clerk invalida o expirada.');
+    }
+
+    const usuario = await this.usuarioRepo.buscarPorEmail(email);
+    if (!usuario) {
+      throw new ForbiddenException(
+        'Este email no está autorizado para ingresar al sistema.',
+      );
+    }
+
+    return { token: this.emitirToken(usuario), user: usuario };
   }
 
   /**
@@ -64,12 +122,13 @@ export class UsuariosService implements OnModuleInit {
    */
   async crear(datos: CreateUsuarioDto, adminId: number) {
     try {
+      // El módulo Usuarios crea la lista blanca. Clerk valida contra esta tabla al ingresar.
       // 1. Buscamos el email incluyendo registros borrados (withDeleted: true)
       // Forzamos el tipo 'as any' para manipular las propiedades libremente
-      const existe = await this.usuarioRepo.findOne({
+      const existe = (await this.usuarioRepo.findOne({
         where: { email: datos.email },
         withDeleted: true,
-      }) as any;
+      })) as any;
 
       const hashedPassword = await bcrypt.hash(datos.password, 10);
 
@@ -81,7 +140,7 @@ export class UsuariosService implements OnModuleInit {
 
         // 🚩 SI ESTABA BORRADO: Lo "limpiamos" y actualizamos sus datos
         // Al asignar valores al objeto encontrado, el .save() hará un UPDATE en lugar de INSERT
-        existe.fecha_borrado = null; 
+        existe.fecha_borrado = null;
         existe.borrado_por = null;
         existe.nombre = datos.nombre;
         existe.password = hashedPassword;
@@ -99,15 +158,16 @@ export class UsuariosService implements OnModuleInit {
       } as any);
 
       return await this.usuarioRepo.save(nuevo);
-
     } catch (error) {
       if (error instanceof ConflictException) throw error;
-      
+
       // Manejo de error de base de datos (Unique Violation)
       if (error.code === '23505') {
-        throw new ConflictException('Conflicto: El correo ya existe en la base de datos.');
+        throw new ConflictException(
+          'Conflicto: El correo ya existe en la base de datos.',
+        );
       }
-      
+
       console.error('Error en creación:', error);
       throw new InternalServerErrorException('Error al procesar el registro');
     }
@@ -142,7 +202,9 @@ export class UsuariosService implements OnModuleInit {
   async eliminar(id: number, adminId: number) {
     // Protección del admin principal
     if (id === 1) {
-      throw new ConflictException('No se puede eliminar al administrador principal');
+      throw new ConflictException(
+        'No se puede eliminar al administrador principal',
+      );
     }
 
     // Registramos quién borra y aplicamos soft delete

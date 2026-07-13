@@ -10,11 +10,13 @@ export class RecibosService {
     try {
       const nuevo = this.repo.create({
         ...datos,
-        creado_por: adminId
+        creado_por: adminId,
       });
       return await this.repo.save(nuevo);
     } catch (error) {
-      throw new BadRequestException('Error al registrar recibo: ' + error.message);
+      throw new BadRequestException(
+        'Error al registrar recibo: ' + error.message,
+      );
     }
   }
 

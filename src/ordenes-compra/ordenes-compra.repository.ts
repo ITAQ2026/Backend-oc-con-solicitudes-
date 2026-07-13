@@ -10,7 +10,7 @@ export class OrdenesCompraRepository extends Repository<OrdenCompra> {
 
   async obtenerHistorial() {
     return await this.find({
-      order: { id: 'DESC' }
+      order: { id: 'DESC' },
     });
   }
 }

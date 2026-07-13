@@ -1,4 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+} from 'typeorm';
 
 @Entity('ordenes_pago')
 export class OrdenPago {
@@ -42,8 +47,8 @@ export class OrdenPago {
   creado_por: number;
 
   @CreateDateColumn()
-  createdAt: Date; 
-  
-  @Column({ nullable: true }) 
+  createdAt: Date;
+
+  @Column({ nullable: true })
   autorizado_por: number;
 }

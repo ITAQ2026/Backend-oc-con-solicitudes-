@@ -9,7 +9,12 @@ import { Usuario } from '../usuarios/entities/usuario.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OrdenCompra, OrdenCompraItem, Solicitud, Usuario])
+    TypeOrmModule.forFeature([
+      OrdenCompra,
+      OrdenCompraItem,
+      Solicitud,
+      Usuario,
+    ]),
   ],
   controllers: [OrdenesCompraController],
   providers: [OrdenesCompraService],

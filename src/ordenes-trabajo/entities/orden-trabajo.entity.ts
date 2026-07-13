@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 import { Vehiculo } from '../../vehiculos/entities/vehiculos.entity';
 
 @Entity('ordenes_trabajo')
@@ -26,9 +33,9 @@ export class OrdenTrabajo {
   fecha: Date;
 
   // RELACIÓN: Muchas OTs pueden pertenecer a un solo Vehículo
-  @ManyToOne(() => Vehiculo, (vehiculo) => vehiculo.id, { 
+  @ManyToOne(() => Vehiculo, (vehiculo) => vehiculo.id, {
     onDelete: 'CASCADE', // Si se borra el vehículo, se borran sus OTs
-    eager: false         // No trae el vehículo a menos que lo pidamos con 'relations'
+    eager: false, // No trae el vehículo a menos que lo pidamos con 'relations'
   })
   @JoinColumn({ name: 'vehiculoId' })
   vehiculo: Vehiculo;

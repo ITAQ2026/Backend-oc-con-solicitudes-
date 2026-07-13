@@ -24,7 +24,7 @@ export class VehiculosService {
   async actualizar(id: number, datos: UpdateVehiculoDto, adminId: number) {
     const vehiculo = await this.vehiculoRepo.findOneBy({ id });
     if (!vehiculo) throw new NotFoundException('Vehículo no encontrado');
-    
+
     this.vehiculoRepo.merge(vehiculo, datos);
     vehiculo.actualizado_por = adminId;
     return await this.vehiculoRepo.save(vehiculo);
@@ -34,7 +34,7 @@ export class VehiculosService {
   async actualizarEstado(id: number, estado: string, adminId: number) {
     const vehiculo = await this.vehiculoRepo.findOneBy({ id });
     if (!vehiculo) throw new NotFoundException('Vehículo no encontrado');
-    
+
     vehiculo.estado = estado;
     vehiculo.actualizado_por = adminId;
     return await this.vehiculoRepo.save(vehiculo);

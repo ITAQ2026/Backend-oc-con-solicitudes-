@@ -5,9 +5,7 @@ import { CreateOrdenTrabajoDto } from './dto/create-orden-trabajo.dto'; // Impor
 
 @Injectable()
 export class OrdenesTrabajoService {
-  constructor(
-    private readonly otRepository: OrdenesTrabajoRepository,
-  ) {}
+  constructor(private readonly otRepository: OrdenesTrabajoRepository) {}
 
   async findAll(): Promise<OrdenTrabajo[]> {
     return this.otRepository.getAll();
@@ -21,9 +19,9 @@ export class OrdenesTrabajoService {
       kilometraje: dto.kilometraje,
       responsable: dto.responsable,
       repuestos_utilizados: dto.repuestos,
-      vehiculo: { id: dto.vehiculoId }
+      vehiculo: { id: dto.vehiculoId },
     };
-    
+
     return this.otRepository.saveOne(payload);
   }
 }

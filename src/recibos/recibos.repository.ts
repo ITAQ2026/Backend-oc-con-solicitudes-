@@ -11,7 +11,7 @@ export class RecibosRepository extends Repository<Recibo> {
   async buscarPorOrden(ordenId: number) {
     return await this.find({
       where: { orden_id: ordenId },
-      order: { fecha_registro: 'DESC' }
+      order: { fecha_registro: 'DESC' },
     });
   }
 }

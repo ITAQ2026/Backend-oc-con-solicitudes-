@@ -4,33 +4,32 @@ import { CreateSolicitudDto } from './dto/create-solicitud.dto';
 
 @Injectable()
 export class SolicitudesService {
-  constructor(
-    private readonly solicitudRepo: SolicitudesRepository,
-  ) {}
+  constructor(private readonly solicitudRepo: SolicitudesRepository) {}
 
   async crear(datos: CreateSolicitudDto, usuarioId: number) {
-  try {
-    // 1. Convertimos a string (lo que la DB espera)
-    const itemsString = typeof datos.items === 'object' 
-      ? JSON.stringify(datos.items) 
-      : String(datos.items);
+    try {
+      // 1. Convertimos a string (lo que la DB espera)
+      const itemsString =
+        typeof datos.items === 'object'
+          ? JSON.stringify(datos.items)
+          : String(datos.items);
 
-    // 2. Extraemos para limpiar el objeto 'resto'
-    const { items, usuario_id, ...resto } = datos;
+      // 2. Extraemos para limpiar el objeto 'resto'
+      const { items, usuario_id, ...resto } = datos;
 
-    // 3. Creamos el objeto con un casting para que TS no se queje
-    const nuevaSolicitud = this.solicitudRepo.create({
-      ...resto,
-      items: itemsString,    // Aquí ya es string
-      usuario_id: usuarioId,
-      estado: 'En Revisión',
-    } as any); // <--- AGREGA 'as any' AQUÍ para forzar a TS a aceptar el objeto
+      // 3. Creamos el objeto con un casting para que TS no se queje
+      const nuevaSolicitud = this.solicitudRepo.create({
+        ...resto,
+        items: itemsString, // Aquí ya es string
+        usuario_id: usuarioId,
+        estado: 'En Revisión',
+      } as any); // <--- AGREGA 'as any' AQUÍ para forzar a TS a aceptar el objeto
 
-    return await this.solicitudRepo.save(nuevaSolicitud);
-  } catch (error) {
-    throw new BadRequestException("Error al crear: " + error.message);
+      return await this.solicitudRepo.save(nuevaSolicitud);
+    } catch (error) {
+      throw new BadRequestException('Error al crear: ' + error.message);
+    }
   }
-}
   async obtenerTodas(usuario: { id: number; rol: string; estado?: string }) {
     return await this.solicitudRepo.buscarConFiltros(usuario);
   }
@@ -38,7 +37,7 @@ export class SolicitudesService {
   async actualizarEstado(id: number, estado: string) {
     const estadosValidos = ['En Revisión', 'Aprobado', 'Rechazado', 'COMPRADO'];
     if (!estadosValidos.includes(estado)) {
-      throw new BadRequestException("Estado no válido");
+      throw new BadRequestException('Estado no válido');
     }
     return await this.solicitudRepo.update(id, { estado });
   }
