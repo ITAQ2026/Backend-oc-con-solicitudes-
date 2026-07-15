@@ -22,9 +22,13 @@ export class FacturasService {
 
   async crear(datos: CreateFacturaDto) {
     try {
+      // Construimos la fecha con año/mes/día locales (no parseando el string
+      // directo) para que no se desplace un día según la zona horaria del
+      // servidor al guardarla como columna "date".
+      const [anio, mes, dia] = datos.fecha.split('-').map(Number);
       const nueva = this.repo.create({
         ...datos,
-        fecha: new Date(datos.fecha),
+        fecha: new Date(anio, mes - 1, dia),
       });
       return await this.repo.save(nueva);
     } catch (error) {
