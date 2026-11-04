@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { OrdenCompra } from './entities/orden-compra.entity';
 import { Solicitud } from '../solicitudes/entities/solicitud.entity';
 import { Usuario } from '../usuarios/entities/usuario.entity';
@@ -20,29 +20,52 @@ export class OrdenesCompraService {
   ) {}
 
   async crear(datos: CreateOrdenDto) {
+    const { items, proveedorNombre, solicitudIds, ...resto } = datos;
+
+    // Una orden puede agrupar varias solicitudes; se acepta también el campo viejo solicitudId
+    const ids = [
+      ...new Set(
+        solicitudIds?.length
+          ? solicitudIds
+          : resto.solicitudId
+            ? [resto.solicitudId]
+            : [],
+      ),
+    ];
+
     try {
-      const { items, proveedorNombre, ...resto } = datos;
+      return await this.ordenRepo.manager.transaction(async (manager) => {
+        const solicitudes = ids.length
+          ? await manager.findBy(Solicitud, { id: In(ids) })
+          : [];
+        if (solicitudes.length !== ids.length) {
+          const encontradas = new Set(solicitudes.map((s) => s.id));
+          const faltantes = ids.filter((id) => !encontradas.has(id));
+          throw new BadRequestException(
+            `No existen las solicitudes: ${faltantes.map((id) => `SC-${id}`).join(', ')}`,
+          );
+        }
 
-      // 1. Creamos la instancia de la orden mapeando 'proveedor'
-      // IMPORTANTE: Aquí pasamos el array de items tal cual,
-      // TypeORM usará el 'cascade: true' de tu Entity para guardarlos en la otra tabla.
-      const nuevaOrden = this.ordenRepo.create({
-        ...resto,
-        proveedor: proveedorNombre,
-        items: items, // Array de objetos, NO string
-        fecha: new Date(),
+        // TypeORM usa el 'cascade: true' de la Entity para guardar los items en su tabla
+        const nuevaOrden = manager.create(OrdenCompra, {
+          ...resto,
+          solicitudId: ids[0] ?? undefined,
+          proveedor: proveedorNombre,
+          items: items,
+          solicitudes,
+          fecha: new Date(),
+        });
+        const ordenGuardada = await manager.save(nuevaOrden);
+
+        if (ids.length) {
+          await manager.update(Solicitud, { id: In(ids) }, {
+            estado: 'COMPRADO',
+          } as any);
+        }
+        return ordenGuardada;
       });
-
-      const ordenGuardada = await this.ordenRepo.save(nuevaOrden);
-
-      if (datos.solicitudId) {
-        // Esto actualiza la base de datos directamente
-        await this.solicitudRepo.update(datos.solicitudId, {
-          estado: 'COMPRADO',
-        } as any);
-      }
-      return ordenGuardada;
     } catch (error) {
+      if (error instanceof BadRequestException) throw error;
       console.error('Detalle error DB:', error);
       throw new BadRequestException(
         'Error al generar la Orden: ' + error.message,
@@ -60,7 +83,7 @@ export class OrdenesCompraService {
     // Usamos 'relations' para que el historial traiga también los productos de cada orden
     return await this.ordenRepo.find({
       where,
-      relations: ['items', 'solicitud'],
+      relations: ['items', 'solicitud', 'solicitudes'],
       order: { id: 'DESC' },
     });
   }

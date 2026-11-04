@@ -4,7 +4,9 @@ import {
   Column,
   OneToMany,
   ManyToOne,
+  ManyToMany,
   JoinColumn,
+  JoinTable,
 } from 'typeorm';
 import { OrdenCompraItem } from './orden-compra-item.entity'; // Asegúrate de que este archivo exista
 import { Solicitud } from '../../solicitudes/entities/solicitud.entity';
@@ -63,7 +65,17 @@ export class OrdenCompra {
   @OneToMany(() => OrdenCompraItem, (item) => item.orden, { cascade: true })
   items: OrdenCompraItem[];
 
+  // Primera solicitud de la orden (se mantiene por compatibilidad)
   @ManyToOne(() => Solicitud, { nullable: true })
   @JoinColumn({ name: 'solicitudId' })
   solicitud: Solicitud;
+
+  // Todas las solicitudes que agrupa la orden (mismo proveedor)
+  @ManyToMany(() => Solicitud)
+  @JoinTable({
+    name: 'ordenes_compra_solicitudes',
+    joinColumn: { name: 'orden_compra_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'solicitud_id', referencedColumnName: 'id' },
+  })
+  solicitudes: Solicitud[];
 }

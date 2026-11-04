@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsArray,
   IsNumber,
+  IsInt,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -72,6 +73,12 @@ export class CreateOrdenDto {
   @IsOptional()
   @IsNumber()
   solicitudId?: number;
+
+  // Varias solicitudes agrupadas en una misma orden
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  solicitudIds?: number[];
 
   @IsArray()
   @ValidateNested({ each: true })
