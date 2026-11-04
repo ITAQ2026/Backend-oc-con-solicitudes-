@@ -43,13 +43,6 @@ export class UsuariosController {
     return { valido: true, mensaje: 'Email autorizado' };
   }
 
-  @Public()
-  @Post('clerk-login')
-  @HttpCode(HttpStatus.OK)
-  async clerkLogin(@Body('token') token: string) {
-    return this.service.validarAccesoClerk(token);
-  }
-
   @Roles('admin')
   @Post('registro')
   async registrar(

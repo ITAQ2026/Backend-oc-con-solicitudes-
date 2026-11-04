@@ -5,14 +5,12 @@ import {
   NotFoundException,
   OnModuleInit,
   InternalServerErrorException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsuariosRepository } from './usuarios.repository';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { obtenerEmailVerificadoDeClerk } from '../auth/clerk.util';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -72,7 +70,9 @@ export class UsuariosService implements OnModuleInit {
    * Validación de credenciales para el Login
    */
   async login(email: string, pass: string) {
-    const usuario = await this.usuarioRepo.buscarPorEmailConPassword(email);
+    const usuario = await this.usuarioRepo.buscarPorEmailConPassword(
+      email.trim().toLowerCase(),
+    );
     if (!usuario) throw new UnauthorizedException('Credenciales incorrectas');
 
     const match = await bcrypt.compare(pass, usuario.password);
@@ -92,37 +92,12 @@ export class UsuariosService implements OnModuleInit {
     return !!usuarioEnListaBlanca;
   }
 
-  async validarAccesoClerk(sessionToken: string) {
-    const clerkSecretKey = this.configService.get<string>('CLERK_SECRET_KEY');
-    if (!clerkSecretKey) {
-      throw new InternalServerErrorException(
-        'CLERK_SECRET_KEY no esta configurado en el servidor.',
-      );
-    }
-
-    let email: string;
-    try {
-      email = await obtenerEmailVerificadoDeClerk(clerkSecretKey, sessionToken);
-    } catch {
-      throw new UnauthorizedException('Sesion de Clerk invalida o expirada.');
-    }
-
-    const usuario = await this.usuarioRepo.buscarPorEmail(email);
-    if (!usuario) {
-      throw new ForbiddenException(
-        'Este email no está autorizado para ingresar al sistema.',
-      );
-    }
-
-    return { token: this.emitirToken(usuario), user: usuario };
-  }
-
   /**
    * CREAR O RECUPERAR USUARIO (SOLUCIÓN AL BORRADO Y RE-REGISTRO)
    */
   async crear(datos: CreateUsuarioDto, adminId: number) {
     try {
-      // El módulo Usuarios crea la lista blanca. Clerk valida contra esta tabla al ingresar.
+      // El módulo Usuarios crea los accesos: el login valida email y password contra esta tabla.
       // 1. Buscamos el email incluyendo registros borrados (withDeleted: true)
       // Forzamos el tipo 'as any' para manipular las propiedades libremente
       const existe = (await this.usuarioRepo.findOne({
