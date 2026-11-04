@@ -12,10 +12,6 @@ import { OrdenesPagoModule } from './ordenes-pago/ordenes-pago.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
 
-// NUEVOS MÓDULOS DE LOGÍSTICA
-import { VehiculosModule } from './vehiculos/vehiculos.module';
-import { OrdenesTrabajoModule } from './ordenes-trabajo/ordenes-trabajo.module';
-
 // NUEVO MÓDULO DE ADMINISTRACIÓN
 import { RecibosModule } from './recibos/recibos.module';
 import { FacturasModule } from './facturas/facturas.module';
@@ -49,7 +45,7 @@ import { FacturasModule } from './facturas/facturas.module';
             ? undefined
             : configService.get<string>('DB_DATABASE'),
 
-          autoLoadEntities: true, // Esto cargará Vehiculo, OrdenTrabajo y Recibo automáticamente
+          autoLoadEntities: true, // Carga las entidades de cada módulo automáticamente
           synchronize: false, // Crea las tablas en la DB si no existen
 
           ssl:
@@ -67,9 +63,6 @@ import { FacturasModule } from './facturas/facturas.module';
     UsuariosModule,
     SolicitudesModule,
 
-    // REGISTRO DE NUEVOS MÓDULOS
-    VehiculosModule,
-    OrdenesTrabajoModule,
     RecibosModule, // <--- Módulo de Recibos agregado
     FacturasModule,
   ],
